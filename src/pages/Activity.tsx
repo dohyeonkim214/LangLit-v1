@@ -3,11 +3,12 @@ import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
 import BeyondThePages from "../Games/BeyondThePages";
 import ReadingForestChallenge from "./Challenges/Reading_Forest";
+import SingaporeAdventure from "../Games/singapore-adventure/Game";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 // Types
-type Tab = "activity" | "friends" | "feed" | "game";
+type Tab = "activity" | "friends" | "feed" | "game" | "SingaporeAdventure";
 
 //interface Companion {
  // name: string;
@@ -336,11 +337,12 @@ const Activity: React.FC = () => {
         {selectedTab === "friends" && <FriendsSection />}
         {selectedTab === "feed" && <FeedSection />}
         {selectedTab === "game" && <BeyondThePages />}
+        {selectedTab === "SingaporeAdventure" && <SingaporeAdventure />}
       </main>
 
       <footer className="w-full bg-white shadow-md fixed bottom-0 z-10">
         <div className="flex justify-around py-3">
-          {(["activity", "friends", "feed", "game"] as Tab[]).map((tab) => (
+          {(["activity", "friends", "feed", "game", "SingaporeAdventure"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setSelectedTab(tab)}
