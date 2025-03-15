@@ -6,13 +6,13 @@ const castleImage = "/assets/castle.png";
 const characterImage = "/assets/character.png";
 const bookcaseImage = "/assets/bookcase.png";
 const bookImage = "/assets/book.png";
-const npcImage = "/assets/npc.png";
-const dragonImage = "/assets/dragon.png";
+
 
 interface Book {
   id: string;
   title: string;
   culture: string;
+  content: string;
   questions: { text: string; options: string[]; answer: string }[];
 }
 
@@ -21,6 +21,8 @@ const books: Book[] = [
     id: "book1",
     title: "삼국지 (Romance of the Three Kingdoms)",
     culture: "Chinese",
+    content:
+      "Zhuge Liang, the Sleeping Dragon, was a master strategist who helped Liu Bei establish his kingdom...",
     questions: [
       {
         text: "Fill in the blank: Zhuge Liang was known as the ______ Dragon.",
@@ -33,6 +35,8 @@ const books: Book[] = [
     id: "book2",
     title: "겐지 이야기 (The Tale of Genji)",
     culture: "Japanese",
+    content:
+      "The Tale of Genji, often considered the world's first novel, explores courtly life and relationships in Heian Japan...",
     questions: [
       {
         text: "Which literary device is primarily used in The Tale of Genji?",
@@ -45,6 +49,8 @@ const books: Book[] = [
     id: "book3",
     title: "홍길동전 (The Tale of Hong Gil-dong)",
     culture: "Korean",
+    content:
+      "Hong Gil-dong, a legendary figure in Korean literature, fights against social injustice and seeks equality...",
     questions: [
       {
         text: "What central theme is explored in The Tale of Hong Gil-dong?",
@@ -61,7 +67,7 @@ const BeyondThePages: React.FC = () => {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
-  const [npcDialogue, setNpcDialogue] = useState("");
+  const [showQuiz, setShowQuiz] = useState(false);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -85,6 +91,21 @@ const BeyondThePages: React.FC = () => {
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, []);
+
+  const handleAnswer = (answer: string) => {
+    if (selectedBook) {
+      if (answer === selectedBook.questions[questionIndex].answer) {
+        setScore(score + 1);
+      }
+      if (questionIndex + 1 < selectedBook.questions.length) {
+        setQuestionIndex(questionIndex + 1);
+      } else {
+        setSelectedBook(null);
+        setShowQuiz(false);
+        setQuestionIndex(0);
+      }
+    }
+  };
 
   return (
     <div className="relative min-h-screen bg-gray-200">
@@ -111,21 +132,9 @@ const BeyondThePages: React.FC = () => {
         </div>
       )}
 
-      {currentStep === "inside" && (
+      {currentStep === "inside" && !selectedBook && (
         <div className="relative">
-          <p className="absolute top-4 left-4 p-4 bg-white rounded-lg shadow">
-            "There is a mysterious library..."
-          </p>
           <img src={bookcaseImage} alt="Bookcase" className="w-full h-auto" />
-          <motion.img
-            src={dragonImage}
-            alt="Mystical Dragon"
-            className="absolute"
-            style={{ left: "300px", top: "150px" }}
-          />
-          <p className="absolute top-16 left-32 p-4 bg-red-200 rounded-lg shadow">
-            "To free my tormented soul, solve this challenge! In return, I shall grant you points."
-          </p>
           <div className="absolute grid grid-cols-3 gap-4 p-8">
             {books.map((book) => (
               <button
@@ -138,6 +147,23 @@ const BeyondThePages: React.FC = () => {
               </button>
             ))}
           </div>
+        </div>
+      )}
+
+      {selectedBook && !showQuiz && (
+        <div className="p-8 bg-white rounded-lg shadow-md">
+          <h2>{selectedBook.title}</h2>
+          <p>{selectedBook.content}</p>
+          <button onClick={() => setShowQuiz(true)}>Take Quiz</button>
+        </div>
+      )}
+
+      {showQuiz && selectedBook && (
+        <div className="p-8 bg-white rounded-lg shadow-md">
+          <p>{selectedBook.questions[questionIndex].text}</p>
+          {selectedBook.questions[questionIndex].options.map((option) => (
+            <button key={option} onClick={() => handleAnswer(option)}>{option}</button>
+          ))}
         </div>
       )}
     </div>
