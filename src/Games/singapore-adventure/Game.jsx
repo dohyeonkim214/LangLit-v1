@@ -1,24 +1,30 @@
 import React, { useEffect, useRef, useState } from "react";
 import Matter, { World, Bodies, Body, Vector } from "matter-js";
 import darwinChunks from "./books/darwin_variation_chunks.json";
-// 맵 데이터 업데이트: 향상된 서사구조로 수정
+import botanicalBackground from './essets/botanical-garden-background.jpg';
+// 업데이트된 맵 데이터: 더 풍부한 서사구조 및 NPC 상호작용
 const SingaporeBotanicGardenMap = {
-  prologue: "Welcome to Singapore. As a first-time visitor, you're on a special mission to find a rare lost seed at the Natural History Museum.",
+  prologue: [
+    "Singapore, 1942 - As Japanese forces occupy Singapore, a team of botanists secretly hides the last known seed of Rafflesia singaporensis, a mythical flower said to possess unique healing properties.",
+    "Present Day - You've been invited by the Singapore Botanic Gardens to participate in their 160th anniversary celebration. Little do you know, you're about to uncover the greatest botanical mystery in Singapore's history..."
+  ],
   locations: [
     {
       id: "hub",
-      name: "Central Hub",
-      description: "The main area connects to four different locations in Singapore.",
+      name: "Heritage Trail Hub",
+      description: "The central junction connecting four significant locations in the Gardens' Heritage Trail.",
       npc: {
-        text: "Welcome to Singapore! I'm your guide, Mei Lin. We need your help to find a lost rare seed that disappeared from our Natural History Museum. To find it, you'll need to explore four key locations and collect special items from each. Are you ready for this adventure?",
+        name: "Prof. Rajan",
+        title: "Chief Botanist",
+        avatar: "👨🏽‍🔬",
+        text: "Ah, you must be our guest from the International Botanical Society! I'm Professor Rajan, head of rare plant conservation here. We've recently discovered fragments of an 80-year-old diary hinting at a hidden Rafflesia seed. The clues point to four locations where my predecessors worked during the war. Would you help us solve this historical mystery?",
         options: ["I'm ready to help!"],
         correctAnswer: "I'm ready to help!",
         onSuccess: {
-          knowledge: "Great! Visit all four areas and collect the special items. Once you have all of them, you'll be able to find the lost seed!"
+          knowledge: "Excellent! Visit all four locations and collect the historical artifacts. When combined, they'll reveal the seed's hiding place!"
         }
       },
       obstacles: [
-        // Four different shapes representing different game areas
         { 
           type: "singaporeanRoom", 
           x: 300, 
@@ -41,7 +47,7 @@ const SingaporeBotanicGardenMap = {
           y: 600, 
           width: 150, 
           height: 150, 
-          color: "purple" 
+          color: "purple"
         },
         { 
           type: "laneToFinish", 
@@ -61,24 +67,27 @@ const SingaporeBotanicGardenMap = {
     },
     {
       id: "singaporeanRoom",
-      name: "Peranakan Heritage Room",
-      description: "A room showcasing the rich Peranakan culture of Singapore.",
+      name: "The Orchidarium",
+      description: "A climate-controlled conservatory housing Singapore's national flower and its hybrids.",
       npc: {
-        text: "Welcome to the Peranakan Heritage Room! I'm Mrs. Tan, a keeper of Peranakan traditions. Our porcelain pieces tell stories about our culture. Based on the text about Singapore's cultural diversity, can you tell me what makes Peranakan culture special?",
+        name: "Dr. Mei Ling",
+        title: "Orchid Specialist",
+        avatar: "👩🏻‍🌾",
+        text: "*carefully pruning an orchid* You must be Professor Rajan's investigator! During WWII, my grandmother hybridized orchids here as camouflage. She left something behind... But first, tell me - why were Vanda Miss Joaquim orchids particularly significant during the occupation?",
         quiz: {
-          question: "What makes Peranakan culture significant in Singapore's heritage?",
+          question: "Why were Vanda Miss Joaquim orchids important during WWII?",
           options: [
-            "It's a unique blend of Chinese and Malay traditions",
-            "It originated from European colonizers",
-            "It's only found in Singapore's museums",
-            "It's a recent cultural phenomenon"
+            "Their roots were edible during food shortages",
+            "They symbolized resistance in secret communications",
+            "Their scent repelled Japanese inspectors",
+            "They bloomed on Singapore's surrender date"
           ],
-          correctAnswer: "It's a unique blend of Chinese and Malay traditions"
+          correctAnswer: "They symbolized resistance in secret communications"
         },
         onSuccess: { 
           nextLocation: "hub", 
-          reward: "peranakan_porcelain",
-          message: "Excellent! You've earned this authentic Peranakan porcelain piece. It's one of the four items you'll need to find the lost seed."
+          reward: "glass_slide",
+          message: "*nods* Correct. White orchids meant 'safe to meet', while red ones signaled danger. *hands you a tiny glass slide* This contains pollen from the last pre-war hybrid. Under a microscope, you'll see coordinates scratched into the glass - the first clue!"
         }
       },
       triggers: [
@@ -87,15 +96,18 @@ const SingaporeBotanicGardenMap = {
     },
     {
       id: "botanicLesson",
-      name: "Singapore Botanic Gardens",
-      description: "Singapore's famous botanical gardens with rare plants.",
+      name: "Heritage Tree Grove",
+      description: "A collection of ancient trees preserved since the Gardens' founding.",
       npc: {
-        text: "Hello, I'm Dr. Wong, a botanist at Singapore's Botanic Gardens. We're home to over 10,000 plant species, including many endangered ones. After reading about plant domestication in the text, please share your thoughts on plant conservation in urban environments like Singapore:",
+        name: "Mr. Tan",
+        title: "Arborist",
+        avatar: "👨🏽‍🦳",
+        text: "*patting a massive Tembusu tree* This old fellow was here when the British surrendered. The head gardener during the occupation - my grandfather - buried something at the base of these trees... But first, prove you understand our living history by sharing your thoughts on century-old trees in botanical research:",
         writing: true,
         onSuccess: { 
           nextLocation: "hub", 
-          reward: "rare_plant_cutting",
-          message: "Thank you for your thoughtful response! Here's a cutting from one of our rare plants. It's the second item you'll need for your quest."
+          reward: "wax_seal",
+          message: "*smiles* Excellent insights! These trees are indeed living time capsules. *digs up a small tin* Here's my grandfather's wax seal. The imprint shows a section of the Gardens' original layout - match it with other clues!"
         }
       },
       triggers: [
@@ -104,24 +116,27 @@ const SingaporeBotanicGardenMap = {
     },
     {
       id: "mysteryRoom",
-      name: "Culinary Heritage Center",
-      description: "A room showcasing Singapore's rich food culture.",
+      name: "The Colonial Herbarium",
+      description: "A room showcasing Singapore's preserved botanical specimens from the colonial era.",
       npc: {
-        text: "Welcome to Singapore's Culinary Heritage Center! I'm Chef Abdullah. Singapore's food culture is as diverse as its people. Many of our traditional dishes use local plants and spices. After reading the text, can you tell me which of these is NOT a traditional food plant in Singapore?",
+        name: "Ms. Zhang",
+        title: "Historical Botanist",
+        avatar: "👩🏻‍💼",
+        text: "*sorting through dried specimens* So you're looking for the Rafflesia clues! My great-aunt was the assistant herbarium keeper during the war. She preserved many local plants for identification. Can you identify which of these plants is NOT native to Singapore?",
         quiz: {
-          question: "Which of these is NOT a traditional food plant used in Singapore cuisine?",
+          question: "Which of these plants is NOT native to Singapore?",
           options: [
-            "Pandan leaves",
-            "Galangal",
-            "Quinoa",
-            "Laksa leaves"
+            "Tembusu",
+            "Pitcher Plant",
+            "Hibiscus",
+            "Poinsettia"
           ],
-          correctAnswer: "Quinoa"
+          correctAnswer: "Poinsettia"
         },
         onSuccess: { 
           nextLocation: "hub", 
-          reward: "golden_merlion_statue",
-          message: "Correct! Quinoa is not traditionally used in Singapore cooking. Here's a Golden Merlion Statue - the third item for your collection!"
+          reward: "pressed_leaf",
+          message: "Correct! Poinsettias are from Mexico. *hands you a carefully pressed leaf* This preserved specimen has a tiny map fragment drawn in invisible ink. When heated gently, it reveals part of a garden grid system from the 1940s!"
         }
       },
       triggers: [
@@ -130,24 +145,27 @@ const SingaporeBotanicGardenMap = {
     },
     {
       id: "laneToFinish",
-      name: "National Museum of Singapore",
-      description: "The final path of your Singapore journey.",
+      name: "The Sundial Garden",
+      description: "An ancient garden feature with a perfectly calibrated sundial from colonial times.",
       npc: {
-        text: "Welcome to the National Museum of Singapore. I'm Curator Lee. Singapore's journey to independence is a fascinating story. Based on historical records, can you answer this question about our nation's past?",
+        name: "Dr. Kumar",
+        title: "Garden Historian",
+        avatar: "👨🏾‍🏫",
+        text: "*adjusting his glasses* Fascinating that you've made it this far in your quest! The original garden timekeeper has one final secret. During the war, the sundial keeper encoded a message in the time shadows. But first, let's see if you know your Singapore history. When was Singapore Botanic Gardens established?",
         quiz: {
-          question: "When did Singapore gain independence from Malaysia?",
+          question: "When was Singapore Botanic Gardens established?",
           options: [
-            "1963",
-            "1965",
-            "1975",
-            "1959"
+            "1822",
+            "1859",
+            "1901",
+            "1945"
           ],
-          correctAnswer: "1965"
+          correctAnswer: "1859"
         },
         onSuccess: { 
           nextLocation: "hub", 
-          reward: "declaration_copy",
-          message: "Correct! On August 9, 1965, Singapore became an independent nation. Here's a copy of our Declaration of Independence - the final item for your collection!"
+          reward: "bronze_key",
+          message: "Precisely correct! In 1859, just 40 years after Singapore's founding. *presents a small bronze key* This unlocks a compartment in the sundial base. Inside is a diagram showing the exact position where the sun's shadow falls on a specific date - the final piece of your puzzle!"
         }
       },
       triggers: [
@@ -158,6 +176,7 @@ const SingaporeBotanicGardenMap = {
 };
 // 게임 컴포넌트
 const SingaporeAdventureGame = () => {
+    // 기존 상태 선언
     const [currentLocation, setCurrentLocation] = useState("hub");
     const [score, setScore] = useState(0);
     const [xp, setXp] = useState(0);
@@ -165,11 +184,11 @@ const SingaporeAdventureGame = () => {
     const [inventory, setInventory] = useState([]);
     const [gameState, setGameState] = useState("playing");
     const [currentQuest, setCurrentQuest] = useState("Find the lost rare seed by exploring Singapore");
-    const [currentChunkIndex, setCurrentChunkIndex] = useState(0); // 다윈 텍스트 인덱스
+    const [currentChunkIndex, setCurrentChunkIndex] = useState(0);
     const [showRewardAnimation, setShowRewardAnimation] = useState(false);
     const [completedTests, setCompletedTests] = useState([]);
     const [randomTextChunk, setRandomTextChunk] = useState("");
-    const [writingInput, setWritingInput] = useState(""); // Add this state for writing input
+    const [writingInput, setWritingInput] = useState(""); 
     const [welcomeDismissed, setWelcomeDismissed] = useState(false);
     const [debugLog, setDebugLog] = useState("Welcome to Singapore! Use arrow keys to move or click the colored areas.");
     const [directionControls, setDirectionControls] = useState({
@@ -178,6 +197,77 @@ const SingaporeAdventureGame = () => {
       left: false,
       right: false
     });
+    const [isTouchingControl, setIsTouchingControl] = useState({
+      up: false,
+      down: false,
+      left: false,
+      right: false
+    });
+    const [playerPosition, setPlayerPosition] = useState({ x: 500, y: 400 });
+    const [interactingAnimal, setInteractingAnimal] = useState(null);
+    
+    // 모달 관련 상태
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    const [currentFeedback, setCurrentFeedback] = useState([]);
+    const [showAttractionsInfo, setShowAttractionsInfo] = useState(false);
+    
+    // 배경 및 동물 관련 상태 
+    const [backgroundImage, setBackgroundImage] = useState(null);
+    const [animalMovements, setAnimalMovements] = useState({});
+    const [showNPCModal, setShowNPCModal] = useState(false);
+
+    const handleTouchStart = (direction) => {
+      setIsTouchingControl(prev => ({ ...prev, [direction]: true }));
+      
+      // movementKeysRef도 함께 업데이트
+      if (direction === 'up') movementKeysRef.current.ArrowUp = true;
+      if (direction === 'down') movementKeysRef.current.ArrowDown = true;
+      if (direction === 'left') movementKeysRef.current.ArrowLeft = true;
+      if (direction === 'right') movementKeysRef.current.ArrowRight = true;
+    };
+    
+    const handleTouchEnd = (direction) => {
+      setIsTouchingControl(prev => ({ ...prev, [direction]: false }));
+      
+      // movementKeysRef도 함께 업데이트
+      if (direction === 'up') movementKeysRef.current.ArrowUp = false;
+      if (direction === 'down') movementKeysRef.current.ArrowDown = false;
+      if (direction === 'left') movementKeysRef.current.ArrowLeft = false;
+      if (direction === 'right') movementKeysRef.current.ArrowRight = false;
+    };
+    
+    // 기존 터치 핸들러 대신 간소화된 직접 이동 핸들러
+const handleDirectMove = (direction) => {
+  if (!playerRef.current) return;
+  
+  const speed = 20; // 한 번에 20px씩 이동
+  const pos = playerRef.current.position;
+  let newX = pos.x;
+  let newY = pos.y;
+  
+  switch (direction) {
+    case 'up':
+      newY = pos.y - speed;
+      break;
+    case 'down':
+      newY = pos.y + speed;
+      break;
+    case 'left':
+      newX = pos.x - speed;
+      break;
+    case 'right':
+      newX = pos.x + speed;
+      break;
+  }
+  
+  Body.setPosition(playerRef.current, { x: newX, y: newY });
+  setPlayerPosition({ x: newX, y: newY }); // 상태 업데이트 추가
+  setDebugLog(`직접 이동: ${direction} (x:${Math.round(newX)}, y:${Math.round(newY)})`);
+  checkProximityToLocations(newX, newY);
+  checkAnimalProximity(newX, newY); // 동물 확인 추가
+};
+    
+    // refs 정의
     const movementKeysRef = useRef({
       ArrowUp: false,
       ArrowDown: false,
@@ -196,12 +286,21 @@ const SingaporeAdventureGame = () => {
     const triggersRef = useRef([]);
     const rafRef = useRef(null);
     const isInitializedRef = useRef(false);
+    const decorationsRef = useRef([]);
+    const buildingsRef = useRef([]);
+    const animalsRef = useRef([]);
+    const backgroundImageRef = useRef(new Image());
+    
     const chunks = darwinChunks;
     const locationData = SingaporeBotanicGardenMap.locations.find((loc) => loc.id === currentLocation);
+    
     // Matter.js 초기화와 update 함수를 한 번에 처리하는 useEffect
     useEffect(() => {
         if (isInitializedRef.current) return;
         isInitializedRef.current = true;
+
+        // 이미지를 직접 설정 (불필요한 로딩 제거)
+        setBackgroundImage({ src: botanicalBackground });
 
         // 엔진 초기화
         const engine = Matter.Engine.create();
@@ -215,18 +314,26 @@ const SingaporeAdventureGame = () => {
                 width: 1000,
                 height: 800,
                 wireframes: false,
-                background: "#d0f0c0",
+                background: "transparent", // 배경을 투명하게 설정
+                // 배경 이미지는 CSS로 별도 처리
             },
         });
         renderRef.current = render;
 
-        // 플레이어 설정
+        // 플레이어 설정 - 기존 코드 수정
         const player = Bodies.circle(500, 400, 20, {
             restitution: 0.0,
             friction: 0.01,
             frictionAir: 0.001,
             density: 0.005,
-            render: { fillStyle: "blue" },
+            render: { 
+                fillStyle: "transparent", // 투명하게 변경
+                sprite: {
+                    // 이모티콘을 렌더링할 수 없으므로 플레이어는 투명하게 처리
+                }
+            },
+            isPlayer: true, // 플레이어 식별용 플래그
+            label: "player"
         });
         playerRef.current = player;
         World.add(engine.world, player);
@@ -253,7 +360,7 @@ const SingaporeAdventureGame = () => {
                 
                 // 플레이어 움직임 처리 - 직접 이동 방식으로 변경
                 const keys = movementKeysRef.current;
-                const speed = 3;
+                const speed = 5; // 속도 증가
                 const currentPos = playerRef.current.position;
                 let newX = currentPos.x;
                 let newY = currentPos.y;
@@ -262,36 +369,47 @@ const SingaporeAdventureGame = () => {
                 if (keys.ArrowDown || keys.s) newY += speed;
                 if (keys.ArrowLeft || keys.a) newX -= speed;
                 if (keys.ArrowRight || keys.d) newX += speed;
-                Matter.Body.setStatic(playerRef.current, true);
                 
                 // 위치가 변경되었으면 직접 위치 업데이트
                 if (newX !== currentPos.x || newY !== currentPos.y) {
                     Body.setPosition(playerRef.current, { x: newX, y: newY });
-                    
-                    // 키 상태 로그
-                    console.log("이동 중:", Object.entries(movementKeysRef.current)
-                        .filter(([_, v]) => v)
-                        .map(([k]) => k)
-                    );
-                    
-                    // 디버그 정보 업데이트
+                    setPlayerPosition({ x: newX, y: newY }); // 상태 업데이트 추가
                     setDebugLog(`위치: x=${Math.round(newX)}, y=${Math.round(newY)}`);
+                    checkProximityToLocations(newX, newY);
+                    checkAnimalProximity(newX, newY); // 동물 확인 추가
                 }
                 
-                // 트리거 충돌 감지
+                // 트리거 충돌 감지 개선
                 triggersRef.current.forEach((trigger) => {
-                    // 트리거 충돌 체크 및 처리
                     if (Matter.Bounds.contains(trigger.bounds, playerRef.current.position)) {
-                        console.log(`트리거 충돌: ${trigger.label}`);
-                        
                         switch(trigger.label) {
                             case "enterSingaporeanRoom":
                                 setCurrentLocation("singaporeanRoom");
                                 break;
-                            // 나머지 케이스...
+                            case "enterBotanicLesson":
+                                setCurrentLocation("botanicLesson");
+                                break;
+                            case "enterMysteryRoom":
+                                setCurrentLocation("mysteryRoom");
+                                break;
+                            case "enterLaneToFinish":
+                                setCurrentLocation("laneToFinish");
+                                break;
+                            case "returnToHub":
+                                setCurrentLocation("hub");
+                                break;
                         }
                     }
                 });
+
+                // 모든 테스트를 완료했고, 4개의 아이템을 모두 수집했는지 확인
+                const allLocations = ["singaporeanRoom", "botanicLesson", "mysteryRoom", "laneToFinish"];
+                if (currentLocation === "hub" && 
+                    allLocations.every(loc => completedTests.includes(loc)) && 
+                    inventory.length >= 4) {
+                    // 엔딩 시나리오로 이동
+                    setGameState("gameOver");
+                }
             }
             
             rafRef.current = requestAnimationFrame(gameLoop);
@@ -364,20 +482,19 @@ const SingaporeAdventureGame = () => {
               Body.setVelocity(playerRef.current, { x: 0, y: 0 });
               
               // 랜덤 텍스트 설정
-              const randomIndex = Math.floor(Math.random() * chunks.length);
+              const randomIndex = Math.floor(Math.random() * 100);
               setCurrentChunkIndex(randomIndex);
               setRandomTextChunk(chunks[randomIndex].text);
             }
         }
     }, [currentLocation]);
-    // 키보드 입력 수정 - 키 누름과 키 놓음 모두 처리
+    // 키보드 입력 수정 - 보다 반응성 좋게 개선
 useEffect(() => {
   const handleKeyDown = (e) => {
     const key = e.key;
     if (key in movementKeysRef.current) {
       movementKeysRef.current[key] = true;
-      console.log(`키 누름: ${key}`); // 디버깅용 로그
-      e.preventDefault();
+      e.preventDefault(); // 브라우저 기본 동작 방지
     }
   };
   
@@ -385,47 +502,112 @@ useEffect(() => {
     const key = e.key;
     if (key in movementKeysRef.current) {
       movementKeysRef.current[key] = false;
-      console.log(`키 해제: ${key}`); // 디버깅용 로그
-      e.preventDefault();
+      e.preventDefault(); // 브라우저 기본 동작 방지
     }
   };
-
   
+  // 확인용 로그
+  console.log("키보드 이벤트 리스너 등록됨");
   
-  console.log("키보드 이벤트 리스너 등록됨"); // 디버깅용
+  // 이벤트 리스너 등록
   window.addEventListener("keydown", handleKeyDown);
   window.addEventListener("keyup", handleKeyUp);
   
+  // 정리 함수
   return () => {
     window.removeEventListener("keydown", handleKeyDown);
-    window.removeEventListener("keyup", handleKeyUp); // 여기 빠진 것 추가
+    window.removeEventListener("keyup", handleKeyUp);
   };
 }, []);
     // NPC 답변/퀴즈 처리 함수 수정
 const handleAnswer = (answer) => {
-    if (!locationData?.npc) return;
+  if (!locationData?.npc) return;
+  
+  // For writing exercises, always consider it "correct" but provide feedback
+  const isCorrect = locationData.npc.writing 
+    ? true 
+    : (locationData.npc.quiz
+        ? answer === locationData.npc.quiz.correctAnswer
+        : answer === locationData.npc.correctAnswer);
+  
+  if (isCorrect) {
+    // Update score and XP
+    setScore((prev) => prev + 10);
+    setXp((prev) => {
+      const newXp = prev + 10;
+      if (newXp >= level * 20) setLevel((prev) => prev + 1);
+      return newXp;
+    });
     
-    const isCorrect = locationData.npc.quiz
-      ? answer === locationData.npc.quiz.correctAnswer
-      : answer === locationData.npc.correctAnswer;
+    // Special handling for hub welcome message
+    if (currentLocation === "hub" && answer === "I'm ready to help!") {
+      setWelcomeDismissed(true);
+      setDebugLog("Let's start exploring Singapore's botanical treasures!");
+      return; // Exit early, no location change needed
+    }
     
-    if (isCorrect) {
-      // Update score and XP
-      setScore((prev) => prev + 10);
-      setXp((prev) => {
-        const newXp = prev + 10;
-        if (newXp >= level * 20) setLevel((prev) => prev + 1);
-        return newXp;
-      });
+    // 장소별 다른 문해력 요소 강조
+    let literacySkillImproved = "";
+    switch(currentLocation) {
+      case "singaporeanRoom":
+        literacySkillImproved = "Cultural Literacy: Understanding symbolism in historical context";
+        break;
+      case "botanicLesson": 
+        literacySkillImproved = "Scientific Literacy: Analyzing and synthesizing botanical knowledge";
+        break;
+      case "mysteryRoom":
+        literacySkillImproved = "Visual Literacy: Identifying and categorizing visual information";
+        break;
+      case "laneToFinish":
+        literacySkillImproved = "Historical Literacy: Contextualizing events in time";
+        break;
+    }
+    
+    // 문해력 향상 알림 표시
+    if (literacySkillImproved) {
+      setDebugLog(`${literacySkillImproved} improved! +10 XP`);
+    }
+    
+    // Special handling for writing exercise
+    if (locationData.npc.writing) {
+      // Custom reward message for the botanic lesson
+      setDebugLog("Scientific writing skills improved! Your analysis shows deep understanding.");
       
-      // Special handling for hub welcome message
-      if (currentLocation === "hub" && answer === "I'm ready to help!") {
-        setWelcomeDismissed(true);
-        setDebugLog("Let's start exploring Singapore!");
-        return; // Exit early, no location change needed
-      }
+      // Add special writing score based on quality
+      const writingQuality = Math.min(10, Math.max(5, Math.floor(answer.length / 20)));
+      setScore((prev) => prev + writingQuality);
       
-      // 퀴즈/쓰기 성공 처리
+      // Short delay before showing success
+      setTimeout(() => {
+        const { nextLocation, reward, message } = locationData.npc.onSuccess || {};
+        
+        // Add location to completed tests
+        if (!completedTests.includes(currentLocation)) {
+          setCompletedTests((prev) => [...prev, currentLocation]);
+        }
+        
+        // Add reward to inventory with special animation
+        if (reward) {
+          setInventory((prev) => [...new Set([...prev, reward])]);
+          setShowRewardAnimation(true);
+          
+          setTimeout(() => setShowRewardAnimation(false), 1500);
+        }
+        
+        // Show success message
+        setDebugLog(message || "Thank you for your thoughtful response!");
+        
+        // Close NPC modal
+        setShowNPCModal(false);
+        
+        // Return to the specified location
+        setTimeout(() => {
+          if (nextLocation) setCurrentLocation(nextLocation);
+        }, 1000);
+      }, 1000);
+    }
+    else {
+      // Handle regular quiz success
       const { nextLocation, reward, message } = locationData.npc.onSuccess || {};
       
       // Add location to completed tests
@@ -446,29 +628,35 @@ const handleAnswer = (answer) => {
         setDebugLog(message);
       }
       
-      // Check if this was the last location and player has all items
-      const allLocationsCompleted = ["singaporeanRoom", "botanicLesson", "mysteryRoom", "laneToFinish"]
-        .every(loc => completedTests.includes(loc) || loc === currentLocation);
-        
-      if (currentLocation === "laneToFinish" && allLocationsCompleted) {
-        // Display victory sequence with timeout to let the player read the message
-        setTimeout(() => {
-          setGameState("gameOver");
-        }, 2500);
-        
-        // Show celebration message
-        setDebugLog("Congratulations! You've found all the items needed to complete your mission!");
-      }
-      else if (nextLocation) {
-        // Regular quest completion - return to the specified location
-        setTimeout(() => {
-          setCurrentLocation(nextLocation);
-        }, 1500);
-      }
-    } else {
-      alert("Incorrect! Please try again.");
-      setScore((prev) => Math.max(0, prev - 5));
+      // Close NPC modal
+      setShowNPCModal(false);
+      
+      // Return to hub after a short delay
+      setTimeout(() => {
+        if (nextLocation) setCurrentLocation(nextLocation);
+      }, 1000);
     }
+  } else {
+    // 틀렸을 때 문해력 유형에 따른 다른 힌트 제공
+    let hint = "";
+    switch(currentLocation) {
+      case "singaporeanRoom":
+        hint = "Think about how flowers might have been used for secret communication during wartime.";
+        break;
+      case "botanicLesson": 
+        hint = "Consider both the scientific and cultural value of ancient trees.";
+        break;
+      case "mysteryRoom":
+        hint = "Look at the geographical origins of these plants - which one isn't from Southeast Asia?";
+        break;
+      case "laneToFinish":
+        hint = "The Gardens were established during the British colonial period, before Singapore's independence.";
+        break;
+    }
+    
+    alert(`Incorrect! ${hint} Please try again.`);
+    setScore((prev) => Math.max(0, prev - 5));
+  }
 };
 // 장면 업데이트 함수를 컴포넌트 내부에 독립적인 함수로 정의
 const updateSceneObjects = (engine) => {
@@ -479,11 +667,68 @@ const updateSceneObjects = (engine) => {
     // 기존 장애물과 트리거 제거
     obstaclesRef.current.forEach((obs) => World.remove(currentEngine.world, obs));
     triggersRef.current.forEach((trig) => World.remove(currentEngine.world, trig));
+    // 기존 장식과 건물 제거
+    decorationsRef.current?.forEach((deco) => World.remove(currentEngine.world, deco));
+    buildingsRef.current?.forEach((building) => World.remove(currentEngine.world, building));
+    
     obstaclesRef.current = [];
     triggersRef.current = [];
+    decorationsRef.current = [];
+    buildingsRef.current = [];
     
-    // 장애물과 트리거 추가...
-    // 위치에 따라 적절한 설정...
+    // 허브에 있을 때만 장식 추가
+    if (currentLocation === "hub") {
+      decorationsRef.current = createGardenObjects(currentEngine);
+    } else {
+      // 다른 장소에 있을 때는 건물 추가
+      buildingsRef.current = createLocationBuildings(currentEngine, currentLocation);
+    }
+    
+    // 장애물과 트리거 추가
+    locationData?.obstacles?.forEach((obs) => {
+      let body;
+      if (obs.type === "singaporeanRoom" || obs.type === "botanicLesson" || 
+          obs.type === "mysteryRoom" || obs.type === "laneToFinish") {
+        body = Bodies.rectangle(obs.x, obs.y, obs.width, obs.height, { 
+          isStatic: true, 
+          isSensor: true,
+          render: { fillStyle: obs.color, opacity: 0.7 }
+        });
+      } else if (obs.type === "tree") {
+        body = Bodies.circle(obs.x, obs.y, obs.radius, { 
+          isStatic: true, 
+          render: { fillStyle: "green" } 
+        });
+      } else {
+        body = Bodies.rectangle(obs.x, obs.y, obs.width, obs.height, { 
+          isStatic: true, 
+          render: { fillStyle: "gray" } 
+        });
+      }
+      obstaclesRef.current.push(body);
+      World.add(currentEngine.world, body);
+    });
+    
+    locationData?.triggers?.forEach((trigger) => {
+      const triggerBody = Bodies.rectangle(trigger.x, trigger.y, trigger.width, trigger.height, {
+        isStatic: true,
+        isSensor: true,
+        label: trigger.action,
+        render: { 
+          fillStyle: "rgba(255, 255, 0, 0.2)",
+          opacity: 0.3
+        }
+      });
+      triggersRef.current.push(triggerBody);
+      World.add(currentEngine.world, triggerBody);
+    });
+    
+    // 동물 렌더링 정보만 저장 (물리 엔진에 추가하지 않음)
+    if (currentLocation === "hub" && decorationsRef.current?.animalData) {
+      animalsRef.current = decorationsRef.current.animalData;
+    } else {
+      animalsRef.current = [];
+    }
 };
 // 1. 클릭으로 방문할 수 있는 임시 함수 추가
 const visitRoom = (roomId) => {
@@ -491,18 +736,23 @@ const visitRoom = (roomId) => {
   setCurrentLocation(roomId);
   setDebugLog(`이동: ${roomId}`);
   
+  // 위치 변경 시 NPC 모달 표시
+  if (roomId !== "hub") {
+    setShowNPCModal(true);
+  }
+  
   switch(roomId) {
     case "singaporeanRoom":
-      setCurrentQuest("Learn about Singaporean culture");
+      setCurrentQuest("Learn about Singaporean orchids and their cultural significance");
       break;
     case "botanicLesson":
-      setCurrentQuest("Learn about Singapore's unique plants");
+      setCurrentQuest("Explore Singapore's heritage trees and conservation efforts");
       break;
     case "mysteryRoom":
-      setCurrentQuest("Solve the linguistic puzzle");
+      setCurrentQuest("Discover Singapore's botanical history through preserved specimens");
       break;
     case "laneToFinish":
-      setCurrentQuest("Complete the Singapore history challenge");
+      setCurrentQuest("Test your knowledge of Singapore Botanic Gardens history");
       break;
     default:
       setCurrentQuest("Choose an area to explore");
@@ -514,287 +764,885 @@ const resetPlayer = () => {
   if (playerRef.current) {
     Body.setPosition(playerRef.current, { x: 500, y: 400 });
     Body.setVelocity(playerRef.current, { x: 0, y: 0 });
-    setDebugLog("플레이어 위치 초기화됨");
+    setDebugLog("Player position reset");
+  }
+};
+// Writing evaluation function with enhanced feedback for botanical knowledge
+const evaluateWriting = (text) => {
+  const feedback = [];
+
+  // Content-related feedback
+  if (text.length < 80) {
+    feedback.push("Your response is quite brief. Try adding more specific examples about heritage trees.");
+  } else if (text.length > 200) {
+    feedback.push("Excellent detail! Your comprehensive response shows deep understanding of botanical heritage.");
+  }
+
+  const treeKeywords = ["rings", "climate", "dna", "history", "biodiversity", "conservation", "growth", "carbon", "ecosystem", "adaptation"];
+  const keywordsFound = treeKeywords.filter(word => text.toLowerCase().includes(word));
+  
+  if (keywordsFound.length === 0) {
+    feedback.push("Consider including scientific concepts like tree rings, DNA evidence, or climate history in your response.");
+  } else if (keywordsFound.length >= 3) {
+    feedback.push("Excellent botanical knowledge! You've incorporated key scientific concepts: " + keywordsFound.join(", ") + ".");
+  } else {
+    feedback.push("Good start! You've mentioned " + keywordsFound.join(", ") + ". Heritage trees also offer insights into evolutionary adaptation and climate change.");
+  }
+
+  // Structure-related feedback
+  const paragraphCount = text.split(/\n\n+/).length;
+  if (paragraphCount < 2) {
+    feedback.push("Consider organizing your thoughts into multiple paragraphs, perhaps separating scientific value from historical significance.");
+  } else {
+    feedback.push("Your well-structured paragraphs effectively separate different aspects of heritage tree importance.");
+  }
+
+  // Overall assessment
+  let overallFeedback = "";
+  if (keywordsFound.length >= 4 && text.length > 150) {
+    overallFeedback = "Outstanding botanical analysis! Mr. Tan is visibly impressed with your understanding of heritage trees' scientific importance.";
+  } else if (keywordsFound.length >= 2 || text.length > 100) {
+    overallFeedback = "Well done! Mr. Tan appreciates your insights into these living botanical treasures.";
+  } else {
+    overallFeedback = "Thank you for your response. With more specific botanical details, you'd impress even the most dedicated arborists.";
+  }
+  
+  feedback.push(overallFeedback);
+  
+  return feedback;
+};
+
+// These state variables are already defined above - using existing ones
+
+// 식물원 쓰기 버튼 클릭 핸들러
+const handleWritingSubmit = () => {
+  if (writingInput.trim().length > 20) {
+    const feedback = evaluateWriting(writingInput);
+    setCurrentFeedback(feedback);
+    setShowFeedbackModal(true);
+  } else {
+    alert("Please write a more detailed response (at least 20 characters)");
   }
 };
 
-// 3. 공간 트리거 완전히 수정
-useEffect(() => {
-  // 이전 useEffect 내용은 그대로 유지하고, 트리거 부분만 수정
+// 모달 닫기 핸들러
+const closeFeedbackModal = () => {
+  setShowFeedbackModal(false);
+  handleAnswer(writingInput);
+  setWritingInput("");
+};
+// 게임 환경에 동물과 식물 오브젝트 추가하기
+const createGardenObjects = (engine) => {
+  const gardenObjects = [];
   
-  // 게임 루프 내 트리거 충돌 감지 부분 수정
-  triggersRef.current.forEach((trigger) => {
-    const playerPos = playerRef.current?.position;
-    if (!playerPos) return;
+  // 동물 오브젝트 (물리 엔진에 등록할 필요 없이 시각적으로만 표시)
+  const animals = [
+    { 
+      type: "butterfly", 
+      x: 120, 
+      y: 150, 
+      width: 30, 
+      height: 30, 
+      color: "#FFA500", 
+      label: "Painted Jezebel",
+      message: "Hello! I'm a Painted Jezebel butterfly. We're native to Singapore and help pollinate many beautiful flowers!",
+      fact: "Did you know? Singapore has over 280 butterfly species!"
+    },
+    { 
+      type: "bird", 
+      x: 850, 
+      y: 230, 
+      width: 35, 
+      height: 25, 
+      color: "#4169E1", 
+      label: "Blue-throated Bee-eater",
+      message: "Greetings! I'm a Blue-throated Bee-eater. I catch insects in mid-air!",
+      fact: "Fun fact: We migrate from northern Asia to Singapore during winter months."
+    },
+    { 
+      type: "lizard", 
+      x: 400, 
+      y: 700, 
+      width: 40, 
+      height: 15, 
+      color: "#228B22", 
+      label: "Green Crested Lizard",
+      message: "*blinks* Oh, hello there! I'm a Green Crested Lizard, one of Singapore's native reptiles.",
+      fact: "Cool fact: My bright colors help me blend perfectly with tropical foliage!"
+    },
+    { 
+      type: "squirrel", 
+      x: 750, 
+      y: 650, 
+      width: 30, 
+      height: 25, 
+      color: "#8B4513", 
+      label: "Plantain Squirrel",
+      message: "Hi there! I'm a Plantain Squirrel. Watch me jump between trees in the gardens!",
+      fact: "Botanical note: We help disperse seeds throughout the gardens, planting future trees!"
+    },
+  ];
+  
+  // 식물과 구조물 (물리적 장애물로 등록)
+  const plants = [
+    // 장식용 나무들
+    { type: "tree", x: 80, y: 80, radius: 25, color: "#006400", isStatic: true, label: "Durian Tree" },
+    { type: "tree", x: 920, y: 80, radius: 25, color: "#006400", isStatic: true, label: "Tembusu Tree" },
+    { type: "tree", x: 80, y: 720, radius: 25, color: "#228B22", isStatic: true, label: "Rambutan Tree" },
+    { type: "tree", x: 920, y: 720, radius: 25, color: "#228B22", isStatic: true, label: "Angsana Tree" },
     
-    const triggerBounds = trigger.bounds;
+    // 꽃밭과 덤불
+    { type: "flowerbed", x: 150, y: 400, width: 60, height: 60, color: "#FF69B4", isStatic: true, label: "Orchid Display" },
+    { type: "flowerbed", x: 850, y: 400, width: 60, height: 60, color: "#FF1493", isStatic: true, label: "Heliconia Garden" },
+    { type: "flowerbed", x: 500, y: 150, width: 80, height: 40, color: "#9932CC", isStatic: true, label: "Vanda Miss Joaquim" },
+    { type: "flowerbed", x: 500, y: 650, width: 80, height: 40, color: "#FF4500", isStatic: true, label: "Tropical Lilies" },
     
-    if (playerPos.x > triggerBounds.min.x &&
-        playerPos.x < triggerBounds.max.x &&
-        playerPos.y > triggerBounds.min.y &&
-        playerPos.y < triggerBounds.max.y) {
-      
-      console.log(`트리거 충돌: ${trigger.label}`);
-      
-      switch(trigger.label) {
-        case "enterSingaporeanRoom":
-          setCurrentLocation("singaporeanRoom");
-          setCurrentQuest("Learn about Singaporean culture");
-          break;
-        case "enterBotanicLesson":
-          setCurrentLocation("botanicLesson");
-          setCurrentQuest("Learn about Singapore's unique plants");
-          break;
-        case "enterMysteryRoom":
-          setCurrentLocation("mysteryRoom");
-          setCurrentQuest("Solve the linguistic puzzle");
-          break;
-        case "enterLaneToFinish":
-          setCurrentLocation("laneToFinish");
-          setCurrentQuest("Complete the Singapore history challenge");
-          break;
-        case "returnToHub":
-          setCurrentLocation("hub");
-          setCurrentQuest("Choose another location to explore");
-          break;
-      }
+    // 허브 중앙 연못
+    { type: "pond", x: 500, y: 400, radius: 50, color: "#87CEFA", isStatic: true, isSensor: true, label: "Swan Lake" },
+    
+    // 작은 정자들과 벤치
+    { type: "gazebo", x: 250, y: 350, width: 30, height: 30, color: "#A0522D", isStatic: true, label: "Heritage Gazebo" },
+    { type: "gazebo", x: 750, y: 350, width: 30, height: 30, color: "#A0522D", isStatic: true, label: "Bandstand" },
+    { type: "bench", x: 200, y: 500, width: 50, height: 15, color: "#8B4513", isStatic: true, label: "Wooden Bench" },
+    { type: "bench", x: 800, y: 500, width: 50, height: 15, color: "#8B4513", isStatic: true, label: "Wooden Bench" },
+    
+    // 연결 통로
+    { type: "path", x: 500, y: 300, width: 100, height: 8, color: "#D2B48C", isStatic: true, label: "Heritage Trail" },
+    { type: "path", x: 500, y: 500, width: 100, height: 8, color: "#D2B48C", isStatic: true, label: "Heritage Trail" },
+    { type: "path", x: 400, y: 400, width: 8, height: 100, color: "#D2B48C", isStatic: true, label: "Heritage Trail" },
+    { type: "path", x: 600, y: 400, width: 8, height: 100, color: "#D2B48C", isStatic: true, label: "Heritage Trail" },
+  ];
+  
+  // 동물은 Physics 엔진에 넣지 않고 시각적으로만 렌더링하기 위해 별도 저장
+  gardenObjects.animalData = animals;
+  
+  // 식물과 구조물은 물리적 객체로 추가
+  plants.forEach(plant => {
+    let body;
+    
+    if (plant.radius) { // 원형 객체 (나무, 연못 등)
+      body = Bodies.circle(plant.x, plant.y, plant.radius, {
+        isStatic: plant.isStatic,
+        isSensor: !!plant.isSensor,
+        render: { fillStyle: plant.color }
+      });
+    } else { // 사각형 객체 (꽃밭, 정자, 벤치 등)
+      body = Bodies.rectangle(plant.x, plant.y, plant.width, plant.height, {
+        isStatic: plant.isStatic,
+        isSensor: !!plant.isSensor,
+        render: { fillStyle: plant.color }
+      });
     }
+    
+    body.label = plant.label || plant.type;
+    gardenObjects.push(body);
+    // engine에 추가
+    World.add(engine.world, body);
   });
-}, []);
+  
+  return gardenObjects;
+};
+// 각 장소 건물 디자인 추가
+const createLocationBuildings = (engine, currentLocation) => {
+  // 이전 오브젝트 제거
+  const buildingObjects = [];
+  
+  if (currentLocation === "hub") {
+    return [];
+  }
+  
+  let building;
+  
+  // 건물 유형에 따라 다른 디자인 적용
+  switch (currentLocation) {
+    case "singaporeanRoom":
+      // 오키드리움 (돔 모양 건물)
+      building = [
+        // 메인 돔 (중앙 원형 구조물)
+        Bodies.circle(500, 300, 120, {
+          isStatic: true,
+          isSensor: true,
+          render: { fillStyle: "#E0FFFF", opacity: 0.7 }
+        }),
+        
+        // 베이스 구조 (직사각형 건물)
+        Bodies.rectangle(500, 400, 300, 180, {
+          isStatic: true,
+          isSensor: true,
+          render: { fillStyle: "#E6E6FA", opacity: 0.7 }
+        }),
+        
+        // 오키드 전시대 (작은 테이블)
+        Bodies.rectangle(400, 450, 60, 40, {
+          isStatic: true,
+          render: { fillStyle: "#DDA0DD" }
+        }),
+        Bodies.rectangle(600, 450, 60, 40, {
+          isStatic: true,
+          render: { fillStyle: "#DDA0DD" }
+        }),
+        
+        // 장식용 난초들
+        Bodies.circle(400, 450, 10, {
+          isStatic: true,
+          render: { fillStyle: "#FF69B4" }
+        }),
+        Bodies.circle(600, 450, 10, {
+          isStatic: true,
+          render: { fillStyle: "#DA70D6" }
+        }),
+        Bodies.circle(500, 500, 10, {
+          isStatic: true,
+          render: { fillStyle: "#9370DB" }
+        })
+      ];
+      break;
+      
+    case "botanicLesson":
+      // 유산 나무 숲 (야외 공간)
+      building = [
+        // 중앙 거대 나무
+        Bodies.circle(500, 350, 70, {
+          isStatic: true,
+          render: { fillStyle: "#556B2F" }
+        }),
+        
+        // 보조 나무들
+        Bodies.circle(400, 300, 40, {
+          isStatic: true,
+          render: { fillStyle: "#6B8E23" }
+        }),
+        Bodies.circle(600, 300, 40, {
+          isStatic: true,
+          render: { fillStyle: "#6B8E23" }
+        }),
+        Bodies.circle(350, 450, 30, {
+          isStatic: true,
+          render: { fillStyle: "#8FBC8F" }
+        }),
+        Bodies.circle(650, 450, 30, {
+          isStatic: true,
+          render: { fillStyle: "#8FBC8F" }
+        }),
+        
+        // 나무 주변 경계석
+        Bodies.rectangle(500, 440, 180, 10, {
+          isStatic: true,
+          render: { fillStyle: "#A9A9A9" }
+        }),
+        
+        // 벤치
+        Bodies.rectangle(400, 500, 80, 20, {
+          isStatic: true,
+          render: { fillStyle: "#8B4513" }
+        }),
+        Bodies.rectangle(600, 500, 80, 20, {
+          isStatic: true,
+          render: { fillStyle: "#8B4513" }
+        })
+      ];
+      break;
+      
+    case "mysteryRoom":
+      // 식민지 식물표본관 (고전적 건물)
+      building = [
+        // 메인 건물
+        Bodies.rectangle(500, 350, 300, 200, {
+          isStatic: true,
+          isSensor: true,
+          render: { fillStyle: "#F5DEB3", opacity: 0.7 }
+        }),
+        
+        // 지붕
+        Bodies.polygon(500, 250, 3, 100, {
+          isStatic: true,
+          isSensor: true,
+          render: { fillStyle: "#CD853F", opacity: 0.8 }
+        }),
+        
+        // 기둥
+        Bodies.rectangle(400, 400, 20, 240, {
+          isStatic: true,
+          render: { fillStyle: "#8B4513" }
+        })
+      ];
+      break;
+      
+    case "mysteryRoom":
+      // 식민지 식물표본관 (고전적 건물)
+      building = [
+        // 메인 건물
+        Bodies.rectangle(500, 350, 300, 200, {
+          isStatic: true,
+          isSensor: true,
+          render: { fillStyle: "#F5DEB3", opacity: 0.7 }
+        }),
+        
+        // 지붕
+        Bodies.polygon(500, 250, 3, 100, {
+          isStatic: true,
+          isSensor: true,
+          render: { fillStyle: "#CD853F", opacity: 0.8 }
+        }),
+        
+        // 기둥
+        Bodies.rectangle(400, 400, 20, 240, {
+          isStatic: true,
+          render: { fillStyle: "#D2B48C" }
+        }),
+        Bodies.rectangle(600, 400, 20, 240, {
+          isStatic: true,
+          render: { fillStyle: "#D2B48C" }
+        }),
+        
+        // 표본 전시대
+        Bodies.rectangle(450, 380, 80, 30, {
+          isStatic: true,
+          render: { fillStyle: "#A0522D" }
+        }),
+        Bodies.rectangle(550, 380, 80, 30, {
+          isStatic: true,
+          render: { fillStyle: "#A0522D" }
+        }),
+        
+        // 표본 유리병
+        Bodies.rectangle(450, 365, 15, 15, {
+          isStatic: true,
+          render: { fillStyle: "#E0FFFF" }
+        }),
+        Bodies.rectangle(480, 365, 15, 15, {
+          isStatic: true,
+          render: { fillStyle: "#E0FFFF" }
+        }),
+        Bodies.rectangle(550, 365, 15, 15, {
+          isStatic: true,
+          render: { fillStyle: "#E0FFFF" }
+        }),
+        Bodies.rectangle(580, 365, 15, 15, {
+          isStatic: true,
+          render: { fillStyle: "#E0FFFF" }
+        })
+      ];
+      break;
+      
+    case "laneToFinish":
+      // 해시계 정원 (원형 야외 공간)
+      building = [
+        // 중앙 해시계
+        Bodies.circle(500, 400, 40, {
+          isStatic: true,
+          render: { fillStyle: "#B8860B" }
+        }),
+        
+        // 해시계 중앙 기둥
+        Bodies.rectangle(500, 400, 10, 30, {
+          isStatic: true,
+          render: { fillStyle: "#8B4513" }
+        }),
+        
+        // 시간 마커 (12개)
+        ...Array(12).fill().map((_, i) => {
+          const angle = (i / 12) * 2 * Math.PI;
+          const radius = 80;
+          return Bodies.circle(
+            500 + radius * Math.cos(angle),
+            400 + radius * Math.sin(angle),
+            8,
+            {
+              isStatic: true,
+              render: { fillStyle: "#D2B48C" }
+            }
+          );
+        }),
+        
+        // 원형 경계석
+        Bodies.circle(500, 400, 100, {
+          isStatic: true,
+          isSensor: true,
+          render: { 
+            fillStyle: "transparent", 
+            strokeStyle: "#A9A9A9", 
+            lineWidth: 15 
+          }
+        }),
+        
+        // 방문자 벤치 (4개 방향)
+        Bodies.rectangle(500, 520, 80, 20, {
+          isStatic: true,
+          render: { fillStyle: "#8B4513" }
+        }),
+        Bodies.rectangle(500, 280, 80, 20, {
+          isStatic: true,
+          render: { fillStyle: "#8B4513" }
+        }),
+        Bodies.rectangle(380, 400, 20, 80, {
+          isStatic: true,
+          render: { fillStyle: "#8B4513" }
+        }),
+        Bodies.rectangle(620, 400, 20, 80, {
+          isStatic: true,
+          render: { fillStyle: "#8B4513" }
+        })
+      ];
+      break;
+      
+    default:
+      building = [];
+  }
+  
+  // 객체 추가
+  building.forEach(body => {
+    buildingObjects.push(body);
+    World.add(engine.world, body);
+  });
+  
+  return buildingObjects;
+};
+// 동물 애니메이션을 위한 refs 및 상태 추가
+// 동물 애니메이션을 위한 refs 및 상태 추가
+useEffect(() => {
+  // 5초마다 동물 위치 업데이트
+  const animalAnimationInterval = setInterval(() => {
+    if (currentLocation === "hub" && animalsRef.current?.length > 0) {
+      const newMovements = {...animalMovements};
+      
+      animalsRef.current.forEach((animal, index) => {
+        // 작은 랜덤 이동 적용
+        const moveX = Math.random() * 30 - 15; // -15 ~ 15
+        const moveY = Math.random() * 30 - 15; // -15 ~ 15
+        
+        // 새 위치가 화면 안에 있는지 확인
+        const newX = Math.min(950, Math.max(50, animal.x + moveX));
+        const newY = Math.min(750, Math.max(50, animal.y + moveY));
+        
+        // 업데이트된 좌표 저장
+        newMovements[index] = { x: newX, y: newY };
+        
+        // 원본 데이터도 갱신 (다음 움직임을 위해)
+        animal.x = newX;
+        animal.y = newY;
+      });
+      
+      setAnimalMovements(newMovements);
+    }
+  }, 5000);
+  
+  return () => clearInterval(animalAnimationInterval);
+}, [currentLocation, animalMovements]);
+
+// 방문 감지 및 처리 함수
+const checkProximityToLocations = (playerX, playerY) => {
+  if (currentLocation !== "hub") return;
+  
+  const locations = [
+    { id: "singaporeanRoom", x: 300, y: 200, radius: 80 },
+    { id: "botanicLesson", x: 700, y: 200, radius: 80 },
+    { id: "mysteryRoom", x: 300, y: 600, radius: 80 },
+    { id: "laneToFinish", x: 700, y: 600, radius: 80 }
+  ];
+  
+  // 플레이어가 특정 장소 근처에 있는지 확인
+  for (const loc of locations) {
+    const distance = Math.sqrt(
+      Math.pow(playerX - loc.x, 2) + Math.pow(playerY - loc.y, 2)
+    );
+    
+    if (distance < loc.radius) {
+      // 근처에 있으면 해당 장소로 이동
+      visitRoom(loc.id);
+      break;
+    }
+  }
+};
+
+// 플레이어와 동물 간의 거리 확인 함수
+const checkAnimalProximity = (playerX, playerY) => {
+  if (currentLocation !== "hub" || !animalsRef.current) return;
+  
+  let foundAnimal = null;
+  const interactionDistance = 50; // 상호작용 거리 설정
+  
+  for (const animal of animalsRef.current) {
+    const animalPos = animalMovements[animalsRef.current.indexOf(animal)] || animal;
+    const distance = Math.sqrt(
+      Math.pow(playerX - animalPos.x, 2) + 
+      Math.pow(playerY - animalPos.y, 2)
+    );
+    
+    if (distance < interactionDistance) {
+      foundAnimal = animal;
+      break;
+    }
+  }
+  
+  // 이전과 다른 동물과 상호작용하는 경우만 상태 업데이트
+  if (foundAnimal !== interactingAnimal) {
+    setInteractingAnimal(foundAnimal);
+    
+    if (foundAnimal) {
+      // 동물을 만나면 점수 획득
+      setScore(prev => prev + 2);
+      setDebugLog(`You met ${foundAnimal.label}!`);
+    }
+  }
+};
+
+// 장소에 들어갔을 때 NPC 대화 모달 표시하는 컴포넌트 추가
+const NPCModal = ({ locationData, onAnswerSubmit, onWritingSubmit, writingInput, setWritingInput, randomTextChunk }) => {
+  const npc = locationData?.npc;
+  
+  if (!npc) return null;
+  
+  return (
+    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg z-50 w-[600px] max-h-[80vh] overflow-y-auto">
+      <div className="flex items-start">
+        <div className="text-4xl mr-4">{npc.avatar}</div>
+        <div className="flex-1">
+          <h3 className="text-xl font-bold">{npc.name}</h3>
+          <p className="text-sm text-gray-600 mb-4">{npc.title}</p>
+          
+          <p className="mb-4">{npc.text}</p>
+          
+          {randomTextChunk && (
+            <div className="mb-4 p-3 bg-gray-50 rounded border border-gray-200 italic text-sm">
+              "{randomTextChunk}"
+              <div className="mt-1 text-xs text-gray-500">— Charles Darwin, "The Variation of Animals and Plants under Domestication"</div>
+            </div>
+          )}
+          
+          {/* 다양한 유형의 질문 처리 */}
+          {npc.quiz ? (
+            <div className="space-y-3">
+              <h4 className="font-bold">{npc.quiz.question}</h4>
+              {npc.quiz.options.map((option) => (
+                <button
+                  key={option}
+                  onClick={() => onAnswerSubmit(option)}
+                  className="block w-full text-left px-4 py-3 bg-green-50 hover:bg-green-100 border border-green-200 rounded mb-2 transition-colors"
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          ) : npc.writing ? (
+            <div className="space-y-3">
+              <textarea
+                value={writingInput}
+                onChange={(e) => setWritingInput(e.target.value)}
+                placeholder="Share your thoughts on the importance of heritage trees in botanical research..."
+                className="w-full p-3 border border-green-300 rounded h-40 focus:ring-2 focus:ring-green-500 focus:outline-none"
+              />
+              <button
+                onClick={() => onWritingSubmit(writingInput)}
+                className="w-full px-4 py-3 bg-green-600 text-white font-bold rounded hover:bg-green-700 transition-colors"
+              >
+                Submit Response
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {npc.options.map((option) => (
+                <button
+                  key={option}
+                  onClick={() => onAnswerSubmit(option)}
+                  className="block w-full text-left px-4 py-3 bg-green-50 hover:bg-green-100 border border-green-200 rounded mb-2 transition-colors"
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // 모든 중복 return 문을 제거하고 아래 return 문만 남깁니다
 return (
-  <div className="flex flex-col items-center p-4">
-    {/* HUD */}
-    <div className="w-[1000px] bg-gray-100 p-2 mb-2 rounded flex justify-between items-center">
-      <div>점수: {score} | 경험치: {xp} | 레벨: {level}</div>
-      <div>인벤토리: {inventory.join(", ") || "없음"}</div>
-      <div className="font-bold text-green-600">현재 테스트: {currentQuest}</div>
-      <div>독해 진행: {currentChunkIndex + 1} / {chunks.length}</div>
-      <button onClick={() => setGameState(gameState === "playing" ? "일시정지" : "playing")} className="px-2 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">
-        {gameState === "playing" ? "일시정지" : "재개"}
-      </button>
-    </div>
+  <div className="relative w-full h-full">
+    {/* 배경 이미지 - CSS 스타일 충돌 수정 */}
+    <div 
+        className="absolute inset-0 z-0" 
+        style={backgroundImage 
+            ? { 
+                backgroundImage: `url(${backgroundImage.src})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                filter: "brightness(0.95)"
+            } 
+            : {
+                // 이미지 로드 실패 시 그라디언트 배경으로 대체
+                backgroundImage: "linear-gradient(135deg, #c9f3c0, #8ed184, #b4e2a7, #c9f3c0)",
+                backgroundSize: "cover"
+                // background 속성 대신 backgroundImage 사용
+            }
+        }
+    />
     
-    {/* 게임 캔버스 수정 - 색상 영역을 클릭 가능하게 */}
-    <div ref={canvasRef} className="border rounded shadow w-[1000px] h-[800px] relative">
-      {/* 디버그 컨트롤 UI 추가 */}
-      <div className="absolute top-2 right-2 bg-white bg-opacity-75 p-2 text-xs z-10">
-        <div>DEBUG: {debugLog}</div>
-        <div>Position: {playerRef.current ? `x=${Math.round(playerRef.current.position?.x || 0)}, y=${Math.round(playerRef.current.position?.y || 0)}` : "N/A"}</div>
-        <div className="text-xs mt-1 mb-2">
-          <strong>키 상태:</strong> 
-          {Object.entries(movementKeysRef.current)
-            .filter(([_, v]) => v)
-            .map(([k]) => k)
-            .join(", ") || "없음"}
-        </div>
-        <button 
-          onClick={resetPlayer}
-          className="px-2 py-1 bg-blue-500 text-white text-xs rounded mb-2 w-full"
-        >
-          Reset Player
-        </button>
-        <div className="text-center font-bold mb-1">빠른 이동:</div>
-        <div className="grid grid-cols-2 gap-1">
-          <button 
-            onClick={() => visitRoom("singaporeanRoom")} 
-            className="px-1 py-1 bg-red-500 text-white text-xs rounded"
-          >
-            Singaporean's Room
-          </button>
-          <button 
-            onClick={() => visitRoom("botanicLesson")}
-            className="px-1 py-1 bg-green-500 text-white text-xs rounded"
-          >
-            Botanic Lesson
-          </button>
-          <button 
-            onClick={() => visitRoom("mysteryRoom")}
-            className="px-1 py-1 bg-purple-500 text-white text-xs rounded"
-          >
-            Mystery Room
-          </button>
-          <button 
-            onClick={() => visitRoom("laneToFinish")}
-            className="px-1 py-1 bg-orange-500 text-white text-xs rounded"
-          >
-            Lane to Finish
-          </button>
-          <button 
-            onClick={() => visitRoom("hub")}
-            className="px-1 py-1 bg-gray-500 text-white text-xs rounded col-span-2"
-          >
-            Return to Hub
-          </button>
-        </div>
-      </div>
-      
-      {/* 나머지 UI 요소들... */}
-    </div>
-    
-    {/* NPC 대화 - 나머지 부분은 유지 */}
-    {locationData?.npc && gameState === "playing" && 
-     !(currentLocation === "hub" && welcomeDismissed) && (
-      <div className="bg-white p-4 rounded shadow mt-4 w-[600px]">
-        <div className="flex items-start">
-          <div className="w-16 h-16 bg-gray-300 rounded-full mr-4"></div>
-          <div className="flex-1">
-            <p className="mb-2 text-lg font-semibold">{locationData.npc.text}</p>
-            {currentLocation !== "hub" && (
-              <div className="mb-4 p-2 bg-gray-50 rounded">
-                <p className="text-sm italic">"{randomTextChunk || chunks[currentChunkIndex].text}"</p>
-                <p className="text-xs mt-1 text-gray-500">— Charles Darwin, "The Variation of Animals and Plants under Domestication"</p>
-              </div>
-            )}
-            <div className="space-y-3">
-              {locationData.npc.quiz ? (
-                <>
-                  <p className="font-medium">{locationData.npc.quiz.question}</p>
-                  {locationData.npc.quiz.options.map((option) => (
-                    <button
-                      key={option}
-                      onClick={() => handleAnswer(option)}
-                      className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </>
-              ) : locationData.npc.writing ? (
-                <div className="space-y-3">
-                  <textarea
-                    value={writingInput}
-                    onChange={(e) => setWritingInput(e.target.value)}
-                    placeholder="Write your response here..."
-                    className="w-full p-2 border rounded h-32"
-                  />
-                  <button
-                    onClick={() => {
-                      if (writingInput.trim().length > 20) { // Simple validation
-                        handleAnswer(writingInput);
-                        setWritingInput("");
-                      }
-                      else {
-                        alert("Please write a more detailed response (at least 20 characters)");
-                      }
-                    }}
-                    className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                  >
-                    Submit Response
-                  </button>
+    {/* 게임 컨테이너 */}
+    <div className="relative z-10 w-full h-full">
+        {/* 게임 캔버스 */}
+        <div ref={canvasRef} className="w-full h-full" />
+        
+        {/* 동물 렌더링 추가 */}
+        {currentLocation === "hub" && animalsRef.current?.length > 0 && (
+          <div className="absolute inset-0 pointer-events-none">
+            {animalsRef.current.map((animal, index) => {
+              const position = animalMovements[index] || animal;
+              const animalEmojis = {
+                butterfly: "🦋",
+                bird: "🐦",
+                lizard: "🦎",
+                squirrel: "🐿️"
+              };
+              
+              return (
+                <div 
+                  key={`animal-${index}`}
+                  className="absolute transition-all duration-1000 flex items-center justify-center"
+                  style={{
+                    left: position.x - 15,
+                    top: position.y - 15,
+                    width: animal.width,
+                    height: animal.height,
+                    fontSize: animal.width * 0.75
+                  }}
+                  title={animal.label}
+                >
+                  {animalEmojis[animal.type] || "🐾"}
                 </div>
-              ) : (
-                locationData.npc.options.map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => handleAnswer(option)}
-                    className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                  >
-                    {option}
-                  </button>
-                ))
-              )}
-            </div>
+              );
+            })}
           </div>
+        )}
+        
+        {/* 장소 이름 표시 개선 */}
+        {currentLocation === "hub" && (
+            <>
+                {/* 장소 마커 - 미묘한 표시로 변경 */}
+                <div className="absolute top-[200px] left-[300px] w-[150px] h-[150px] rounded-lg overflow-hidden z-20">
+                    <div className="absolute inset-0 border-2 border-red-500 border-dashed rounded-lg"></div>
+                    <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1 rounded shadow-md">
+                        <div className="text-red-800 font-bold text-sm">Orchidarium</div>
+                    </div>
+                </div>
+                
+                <div className="absolute top-[200px] left-[700px] w-[150px] h-[150px] rounded-lg overflow-hidden z-20">
+                    <div className="absolute inset-0 border-2 border-green-500 border-dashed rounded-lg"></div>
+                    <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1 rounded shadow-md">
+                        <div className="text-green-800 font-bold text-sm">Heritage Trees</div>
+                    </div>
+                </div>
+                
+                <div className="absolute top-[600px] left-[300px] w-[150px] h-[150px] rounded-lg overflow-hidden z-20">
+                    <div className="absolute inset-0 border-2 border-purple-500 border-dashed rounded-lg"></div>
+                    <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1 rounded shadow-md">
+                        <div className="text-purple-800 font-bold text-sm">Herbarium</div>
+                    </div>
+                </div>
+                
+                <div className="absolute top-[600px] left-[700px] w-[150px] h-[150px] rounded-lg overflow-hidden z-20">
+                    <div className="absolute inset-0 border-2 border-orange-500 border-dashed rounded-lg"></div>
+                    <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1 rounded shadow-md">
+                        <div className="text-orange-800 font-bold text-sm">Sundial Garden</div>
+                    </div>
+                </div>
+                
+                {/* 정보 간판 추가 */}
+                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-90 border-2 border-green-800 rounded-lg p-3 shadow-lg z-50">
+                    <h2 className="text-xl text-green-800 font-bold">Singapore Botanic Gardens</h2>
+                    <p className="text-sm text-green-700">Visit all four locations to solve the botanical mystery</p>
+                </div>
+            </>
+        )}
+        
+        {/* 나머지 UI 요소들 */}
+        {/* ... */}
+    </div>
+    
+    {/* 인벤토리 및 게임 상태 정보 */}
+    <div className="absolute bottom-4 left-4 bg-white bg-opacity-80 p-2 rounded-lg z-50">
+        <div className="font-bold">Score: {score} | XP: {xp} | Level: {level}</div>
+        <div className="text-sm">Current Quest: {currentQuest}</div>
+        <div className="flex mt-1 space-x-2">
+            {inventory.map((item, idx) => (
+                <div key={idx} className="h-8 w-8 bg-yellow-100 rounded flex items-center justify-center" title={item}>
+                    {item === "glass_slide" && "🔍"}
+                    {item === "wax_seal" && "🔖"}
+                    {item === "pressed_leaf" && "🍃"}
+                    {item === "bronze_key" && "🗝️"}
+                </div>
+            ))}
         </div>
+    </div>
+    
+    {/* 다른 장소에서 허브로 돌아가는 버튼 */}
+    {currentLocation !== "hub" && (
+        <button
+            onClick={() => setCurrentLocation("hub")}
+            className="absolute bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition-colors z-50"
+        >
+            Return to Garden Map
+        </button>
+    )}
+
+    {/* 로그 메시지 */}
+    <div className="absolute bottom-16 left-4 bg-white bg-opacity-80 p-2 rounded-lg max-w-md z-50">
+        <div className="text-sm italic">{debugLog}</div>
+    </div>
+
+    {/* 게임 진행 상황 표시 - 허브에 도달하면 표시 */}
+    {currentLocation === "hub" && completedTests.length > 0 && (
+      <div className="absolute top-20 right-4 bg-white p-3 rounded shadow-lg z-30">
+        <h3 className="font-bold text-green-700 mb-2">Quest Progress:</h3>
+        <ul className="text-left">
+          <li className="flex items-center">
+            <div className="w-3 h-3 bg-red-500 mr-2"></div>
+            <span>Orchidarium: {completedTests.includes("singaporeanRoom") ? "✅" : "⬜️"}</span>
+          </li>
+          <li className="flex items-center">
+            <div className="w-3 h-3 bg-green-500 mr-2"></div>
+            <span>Heritage Trees: {completedTests.includes("botanicLesson") ? "✅" : "⬜️"}</span>
+          </li>
+          <li className="flex items-center">
+            <div className="w-3 h-3 bg-purple-500 mr-2"></div>
+            <span>Herbarium: {completedTests.includes("mysteryRoom") ? "✅" : "⬜️"}</span>
+          </li>
+          <li className="flex items-center">
+            <div className="w-3 h-3 bg-orange-500 mr-2"></div>
+            <span>Sundial: {completedTests.includes("laneToFinish") ? "✅" : "⬜️"}</span>
+          </li>
+        </ul>
+        {completedTests.length >= 4 && (
+          <div className="mt-2 p-2 bg-green-100 text-green-800 rounded text-sm animate-pulse">
+            All locations complete! The mystery will soon be solved...
+          </div>
+        )}
       </div>
     )}
-    
-    {/* 게임 종료 시 표시할 개선된 엔딩 시퀀스 */}
+
+    {/* 게임 종료 시 표시할 엔딩 시퀀스 */}
     {gameState === "gameOver" && (
       <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-80 flex items-center justify-center z-50">
-        <div className="bg-white p-8 rounded-lg shadow-lg max-w-2xl text-center">
-          <h1 className="text-3xl font-bold text-green-600 mb-4">Congratulations!</h1>
-          <p className="text-xl mb-6">You've completed your Singapore adventure!</p>
+        <div className="bg-white p-8 rounded-lg shadow-lg max-w-3xl max-h-[90vh] overflow-y-auto text-center">
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-500 via-yellow-400 to-green-500 rounded-t-lg"></div>
           
-          <div className="mb-6 bg-gray-50 p-4 rounded">
-            <p className="italic">With the four special items collected - the Peranakan porcelain, the rare plant cutting, the golden Merlion statue, and the copy of Singapore's Declaration of Independence - you've unlocked the hidden chamber at the Natural History Museum.</p>
-            <p className="italic mt-2">Inside, just as Mei Lin predicted, you find the lost seed of the Singapore Corpse Lily, one of the rarest plants in the world!</p>
+          <h1 className="text-3xl font-bold text-green-700 mb-4 mt-2">The Botanical Mystery Solved!</h1>
+          <p className="text-xl mb-6">You've uncovered Singapore's greatest botanical secret!</p>
+          
+          <div className="mb-6 bg-green-50 p-4 rounded border border-green-200">
+            <p className="italic">By combining all four historical artifacts - the glass slide with pollen, the wax seal imprint, the pressed leaf map, and the sundial key - you've revealed the location of the mythical Rafflesia singaporensis seed.</p>
+            <p className="italic mt-2">Following the coordinates to a hidden section of the Gardens, you discover a special temperature-controlled vault beneath the oldest heritage tree. Inside, preserved in amber, is the dormant seed that botanists have searched for since World War II!</p>
           </div>
           
           <div className="mb-6">
-            <p className="mb-2 font-semibold">Your achievements:</p>
+            <p className="mb-2 font-semibold text-green-800">Your botanical achievements:</p>
             <ul className="text-left inline-block">
               <li>✓ Final score: {score} points</li>
-              <li>✓ Texts read: {currentChunkIndex + 1} / {chunks.length}</li>
-              <li>✓ Items collected: {inventory.length} / 4</li>
-              <li>✓ Final level reached: {level}</li>
+              <li>✓ Historical texts analyzed: {currentChunkIndex + 1} / {chunks.length}</li>
+              <li>✓ Artifacts collected: {inventory.length} / 4</li>
+              <li>✓ Botanical knowledge level: {level}</li>
             </ul>
-          </div>
-          
-          <div className="bg-green-50 p-4 rounded mb-6">
-            <p className="text-lg font-semibold text-green-700 mb-2">Special Invitation</p>
-            <p>For your extraordinary help, you've been invited to a special ceremony at the Singapore Gardens by the Bay, where you'll witness a traditional performance and the planting of the recovered rare seed!</p>
           </div>
           
           <button
             onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md"
           >
-            Play Again
+            Start a New Botanical Adventure
           </button>
+          
+          <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-green-500 via-yellow-400 to-green-500 rounded-b-lg"></div>
         </div>
       </div>
     )}
-    
-    {/* 허브 정보 */}
-    {currentLocation === "hub" && (
-      <>
-        {/* Area labels - positioned to match the colored rectangles */}
-        <div className="absolute top-[150px] left-[275px] text-center text-white font-bold w-[200px] z-20">
-          Singaporean's
-          <br />
-          Room
-        </div>
-        <div className="absolute top-[150px] left-[675px] text-center text-white font-bold w-[200px] z-20">
-          Botanic
-          <br />
-          Lesson
-        </div>
-        <div className="absolute top-[550px] left-[275px] text-center text-white font-bold w-[200px] z-20">
-          Mystery
-          <br />
-          Room
-        </div>
-        <div className="absolute top-[550px] left-[675px] text-center text-white font-bold w-[200px] z-20">
-          Lane to
-          <br />
-          Finish
-        </div>
-        
-        {/* Game information banner */}
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white p-3 rounded shadow-lg z-10 text-center">
-          <h2 className="text-xl font-bold mb-2">Singapore Adventure</h2>
-          <p>Enter any colored area to explore different locations:</p>
-          <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-red-500 mr-2"></div>
-              <span>Singaporean's Room {completedTests.includes("singaporeanRoom") && "✓"}</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-green-500 mr-2"></div>
-              <span>Botanic Lesson {completedTests.includes("botanicLesson") && "✓"}</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-purple-500 mr-2"></div>
-              <span>Mystery Room {completedTests.includes("mysteryRoom") && "✓"}</span></div>
-            <div className="flex items-center">
-              <div className="w-4 h-4 bg-orange-500 mr-2"></div>
-              <span>Lane to Finish {completedTests.includes("laneToFinish") && "✓"}</span>
-            </div>
-          </div>
-        </div>
-        
-        {/* Instructions */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white p-3 rounded shadow-lg z-10 text-center">
-          <p className="text-lg">Use arrow keys to navigate to any colored area</p>
-          <p className="text-sm text-gray-500">Complete all locations to finish your Singapore journey!</p>
-        </div>
-      </>
-    )}
-  </div>
-);
 
+    {/* 동물 상호작용 말풍선 */}
+    {interactingAnimal && (
+      <div 
+        className="absolute z-50 bg-white p-4 rounded-lg shadow-lg"
+        style={{
+          left: playerPosition.x + 40,
+          top: playerPosition.y - 20,
+          width: 250
+        }}
+      >
+        <h3 className="text-lg font-bold">{interactingAnimal.label}</h3>
+        <p className="text-sm">{interactingAnimal.message}</p>
+        <p className="text-xs text-gray-500 italic">{interactingAnimal.fact}</p>
+      </div>
+    )}
+
+    {/* 나머지 모달 및 UI 컴포넌트 */}
+    {/* ... */}
+    {/* 방향키 UI 추가 - 오른쪽 하단에 위치 */}
+    <div className="absolute bottom-16 right-4 z-50 select-none">
+      <div class="grid grid-cols-3 gap-1">
+        {/* 위쪽 화살표 */}
+        <div class="col-start-2">
+          <button
+            class={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.up ? 'bg-green-200' : ''}`}
+            onClick={() => handleDirectMove('up')}
+          >
+            ↑
+          </button>
+        </div>
+        
+        {/* 왼쪽, 아래, 오른쪽 화살표 */}
+        <div class="col-start-1">
+          <button
+            class={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.left ? 'bg-green-200' : ''}`}
+            onClick={() => handleDirectMove('left')}
+          >
+            ←
+          </button>
+        </div>
+        <div class="col-start-2">
+          <button
+            class={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.down ? 'bg-green-200' : ''}`}
+            onClick={() => handleDirectMove('down')}
+          >
+            ↓
+          </button>
+        </div>
+        <div class="col-start-3">
+          <button
+            class={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.right ? 'bg-green-200' : ''}`}
+            onClick={() => handleDirectMove('right')}
+          >
+            →
+          </button>
+        </div>
+      </div>
+    </div>
+    {/* 플레이어 캐릭터 - 이모티콘 */}
+    <div 
+      className="absolute z-20 transition-all duration-100 select-none pointer-events-none"
+      style={{
+        left: playerPosition.x - 20, 
+        top: playerPosition.y - 30, 
+        fontSize: '40px'
+      }}
+    >
+      👨‍🔬
+    </div>
+    {/* NPC 모달 표시 */}
+    {showNPCModal && currentLocation !== "hub" && (
+      <NPCModal
+        locationData={locationData}
+        onAnswerSubmit={handleAnswer}
+        onWritingSubmit={handleWritingSubmit}
+        writingInput={writingInput}
+        setWritingInput={setWritingInput}
+        randomTextChunk={randomTextChunk}
+      />
+    )}
+</div>
+);
 };
+
+// 터치 컨트롤 핸들러 함수들 추가
+
 
 export default SingaporeAdventureGame;
