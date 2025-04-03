@@ -1578,11 +1578,11 @@ return (
     {/* ... */}
     {/* 방향키 UI 추가 - 오른쪽 하단에 위치 */}
     <div className="absolute bottom-16 right-4 z-50 select-none">
-      <div class="grid grid-cols-3 gap-1">
+      <div className="grid grid-cols-3 gap-1">
         {/* 위쪽 화살표 */}
-        <div class="col-start-2">
+        <div className="col-start-2">
           <button
-            class={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.up ? 'bg-green-200' : ''}`}
+            className={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.up ? 'bg-green-200' : ''}`}
             onClick={() => handleDirectMove('up')}
           >
             ↑
@@ -1590,25 +1590,25 @@ return (
         </div>
         
         {/* 왼쪽, 아래, 오른쪽 화살표 */}
-        <div class="col-start-1">
+        <div className="col-start-1">
           <button
-            class={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.left ? 'bg-green-200' : ''}`}
+            className={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.left ? 'bg-green-200' : ''}`}
             onClick={() => handleDirectMove('left')}
           >
             ←
           </button>
         </div>
-        <div class="col-start-2">
+        <div className="col-start-2">
           <button
-            class={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.down ? 'bg-green-200' : ''}`}
+            className={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.down ? 'bg-green-200' : ''}`}
             onClick={() => handleDirectMove('down')}
           >
             ↓
           </button>
         </div>
-        <div class="col-start-3">
+        <div className="col-start-3">
           <button
-            class={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.right ? 'bg-green-200' : ''}`}
+            className={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.right ? 'bg-green-200' : ''}`}
             onClick={() => handleDirectMove('right')}
           >
             →
@@ -1640,9 +1640,9 @@ return (
     )}
 </div>
 );
+
+// 추가 스타일 정의 root = createRoot(document.getElementById('root')!);
+
 };
-
-// 터치 컨트롤 핸들러 함수들 추가
-
 
 export default SingaporeAdventureGame;
