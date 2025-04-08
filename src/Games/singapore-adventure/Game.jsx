@@ -445,17 +445,17 @@ const handleDirectMove = (direction) => {
                   body = Bodies.rectangle(obs.x, obs.y, obs.width, obs.height, { 
                     isStatic: true, 
                     isSensor: true,
-                    render: { fillStyle: obs.color, opacity: 0.7 }
+                    render: { fillStyle: "transparent", opacity: 0 }  // 완전히 투명하게 설정
                   });
                 } else if (obs.type === "tree") {
                   body = Bodies.circle(obs.x, obs.y, obs.radius, { 
                     isStatic: true, 
-                    render: { fillStyle: "green" } 
+                    render: { fillStyle: "#2e5d28", opacity: 0.7 }  // 더 자연스러운 나무 색상
                   });
                 } else {
                   body = Bodies.rectangle(obs.x, obs.y, obs.width, obs.height, { 
                     isStatic: true, 
-                    render: { fillStyle: "gray" } 
+                    render: { fillStyle: "transparent", opacity: 0 }  // 완전히 투명하게 설정
                   });
                 }
                 obstaclesRef.current.push(body);
@@ -468,8 +468,8 @@ const handleDirectMove = (direction) => {
                     isSensor: true,
                     label: trigger.action,
                     render: { 
-                      fillStyle: "rgba(255, 255, 0, 0.2)",
-                      opacity: 0.3
+                      fillStyle: "transparent",  // 완전히 투명하게 변경
+                      opacity: 0
                     }
                 });
                 triggersRef.current.push(triggerBody);
@@ -692,17 +692,17 @@ const updateSceneObjects = (engine) => {
         body = Bodies.rectangle(obs.x, obs.y, obs.width, obs.height, { 
           isStatic: true, 
           isSensor: true,
-          render: { fillStyle: obs.color, opacity: 0.7 }
+          render: { fillStyle: "transparent", opacity: 0 }  // 완전히 투명하게 설정
         });
       } else if (obs.type === "tree") {
         body = Bodies.circle(obs.x, obs.y, obs.radius, { 
           isStatic: true, 
-          render: { fillStyle: "green" } 
+          render: { fillStyle: "#2e5d28", opacity: 0.7 }  // 더 자연스러운 나무 색상
         });
       } else {
         body = Bodies.rectangle(obs.x, obs.y, obs.width, obs.height, { 
           isStatic: true, 
-          render: { fillStyle: "gray" } 
+          render: { fillStyle: "transparent", opacity: 0 }  // 완전히 투명하게 설정
         });
       }
       obstaclesRef.current.push(body);
@@ -715,8 +715,8 @@ const updateSceneObjects = (engine) => {
         isSensor: true,
         label: trigger.action,
         render: { 
-          fillStyle: "rgba(255, 255, 0, 0.2)",
-          opacity: 0.3
+          fillStyle: "transparent",  // 완전히 투명하게 변경
+          opacity: 0
         }
       });
       triggersRef.current.push(triggerBody);
@@ -1360,109 +1360,116 @@ const NPCModal = ({ locationData, onAnswerSubmit, onWritingSubmit, writingInput,
 
 // 모든 중복 return 문을 제거하고 아래 return 문만 남깁니다
 return (
-  <div className="relative w-full h-full">
-    {/* 배경 이미지 - CSS 스타일 충돌 수정 */}
-    <div 
-        className="absolute inset-0 z-0" 
-        style={backgroundImage 
-            ? { 
-                backgroundImage: `url(${backgroundImage.src})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                filter: "brightness(0.95)"
-            } 
-            : {
-                // 이미지 로드 실패 시 그라디언트 배경으로 대체
-                backgroundImage: "linear-gradient(135deg, #c9f3c0, #8ed184, #b4e2a7, #c9f3c0)",
-                backgroundSize: "cover"
-                // background 속성 대신 backgroundImage 사용
-            }
-        }
-    />
-    
-    {/* 게임 컨테이너 */}
-    <div className="relative z-10 w-full h-full">
-        {/* 게임 캔버스 */}
-        <div ref={canvasRef} className="w-full h-full" />
-        
-        {/* 동물 렌더링 추가 */}
-        {currentLocation === "hub" && animalsRef.current?.length > 0 && (
-          <div className="absolute inset-0 pointer-events-none">
-            {animalsRef.current.map((animal, index) => {
-              const position = animalMovements[index] || animal;
-              const animalEmojis = {
-                butterfly: "🦋",
-                bird: "🐦",
-                lizard: "🦎",
-                squirrel: "🐿️"
-              };
-              
-              return (
-                <div 
-                  key={`animal-${index}`}
-                  className="absolute transition-all duration-1000 flex items-center justify-center"
-                  style={{
-                    left: position.x - 15,
-                    top: position.y - 15,
-                    width: animal.width,
-                    height: animal.height,
-                    fontSize: animal.width * 0.75
-                  }}
-                  title={animal.label}
-                >
-                  {animalEmojis[animal.type] || "🐾"}
-                </div>
-              );
-            })}
-          </div>
-        )}
-        
-        {/* 장소 이름 표시 개선 */}
-        {currentLocation === "hub" && (
+  <div className="fixed inset-0 flex items-center justify-center bg-gray-100">
+    {/* 실제 게임 영역 - 중앙 배치 및 크기 제한 */}
+    <div className="relative w-[1000px] h-[800px] overflow-hidden shadow-2xl rounded-lg">
+      {/* 배경 이미지 */}
+      <div 
+          className="absolute inset-0 z-0" 
+          style={backgroundImage 
+              ? { 
+                  backgroundImage: `url(${backgroundImage.src})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  filter: "brightness(0.95)"
+              } 
+              : {
+                  backgroundImage: "linear-gradient(135deg, #c9f3c0, #8ed184, #b4e2a7, #c9f3c0)",
+                  backgroundSize: "cover"
+              }
+          }
+      />
+      
+      {/* 게임 컨테이너 */}
+      <div className="relative z-10 w-full h-full">
+          {/* 게임 캔버스 */}
+          <div ref={canvasRef} className="w-full h-full" />
+          
+          {/* 동물 렌더링 */}
+          {currentLocation === "hub" && animalsRef.current?.length > 0 && (
+            <div className="absolute inset-0 pointer-events-none">
+              {animalsRef.current.map((animal, index) => {
+                const position = animalMovements[index] || animal;
+                const animalEmojis = {
+                  butterfly: "🦋",
+                  bird: "🐦",
+                  lizard: "🦎",
+                  squirrel: "🐿️"
+                };
+                
+                return (
+                  <div 
+                    key={`animal-${index}`}
+                    className="absolute transition-all duration-1000 flex items-center justify-center"
+                    style={{
+                      left: position.x - 15,
+                      top: position.y - 15,
+                      width: animal.width,
+                      height: animal.height,
+                      fontSize: animal.width * 0.75
+                    }}
+                    title={animal.label}
+                  >
+                    {animalEmojis[animal.type] || "🐾"}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          
+          {/* 게임 UI 요소들 */}
+          {currentLocation === "hub" && (
             <>
-                {/* 장소 마커 - 미묘한 표시로 변경 */}
-                <div className="absolute top-[200px] left-[300px] w-[150px] h-[150px] rounded-lg overflow-hidden z-20">
-                    <div className="absolute inset-0 border-2 border-red-500 border-dashed rounded-lg"></div>
-                    <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1 rounded shadow-md">
-                        <div className="text-red-800 font-bold text-sm">Orchidarium</div>
-                    </div>
-                </div>
+              {/* 가시적인 색상 블록 대신 버튼 형태로 변경 */}
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid grid-cols-2 gap-8 z-20">
+                <button
+                  onClick={() => visitRoom("singaporeanRoom")} 
+                  className="w-40 h-40 bg-white bg-opacity-80 rounded-xl shadow-md hover:shadow-lg transition-all flex flex-col items-center justify-center p-4"
+                >
+                  <span className="text-4xl mb-2">🌺</span>
+                  <h3 className="text-lg font-bold text-red-800">Orchidarium</h3>
+                  <p className="text-xs text-red-600">Explore Singapore's orchids</p>
+                </button>
                 
-                <div className="absolute top-[200px] left-[700px] w-[150px] h-[150px] rounded-lg overflow-hidden z-20">
-                    <div className="absolute inset-0 border-2 border-green-500 border-dashed rounded-lg"></div>
-                    <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1 rounded shadow-md">
-                        <div className="text-green-800 font-bold text-sm">Heritage Trees</div>
-                    </div>
-                </div>
+                <button
+                  onClick={() => visitRoom("botanicLesson")} 
+                  className="w-40 h-40 bg-white bg-opacity-80 rounded-xl shadow-md hover:shadow-lg transition-all flex flex-col items-center justify-center p-4"
+                >
+                  <span className="text-4xl mb-2">🌳</span>
+                  <h3 className="text-lg font-bold text-green-800">Heritage Trees</h3>
+                  <p className="text-xs text-green-600">Discover ancient trees</p>
+                </button>
                 
-                <div className="absolute top-[600px] left-[300px] w-[150px] h-[150px] rounded-lg overflow-hidden z-20">
-                    <div className="absolute inset-0 border-2 border-purple-500 border-dashed rounded-lg"></div>
-                    <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1 rounded shadow-md">
-                        <div className="text-purple-800 font-bold text-sm">Herbarium</div>
-                    </div>
-                </div>
+                <button
+                  onClick={() => visitRoom("mysteryRoom")} 
+                  className="w-40 h-40 bg-white bg-opacity-80 rounded-xl shadow-md hover:shadow-lg transition-all flex flex-col items-center justify-center p-4"
+                >
+                  <span className="text-4xl mb-2">🔬</span>
+                  <h3 className="text-lg font-bold text-purple-800">Herbarium</h3>
+                  <p className="text-xs text-purple-600">Study plant specimens</p>
+                </button>
                 
-                <div className="absolute top-[600px] left-[700px] w-[150px] h-[150px] rounded-lg overflow-hidden z-20">
-                    <div className="absolute inset-0 border-2 border-orange-500 border-dashed rounded-lg"></div>
-                    <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-white px-3 py-1 rounded shadow-md">
-                        <div className="text-orange-800 font-bold text-sm">Sundial Garden</div>
-                    </div>
-                </div>
-                
-                {/* 정보 간판 추가 */}
-                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-90 border-2 border-green-800 rounded-lg p-3 shadow-lg z-50">
-                    <h2 className="text-xl text-green-800 font-bold">Singapore Botanic Gardens</h2>
-                    <p className="text-sm text-green-700">Visit all four locations to solve the botanical mystery</p>
-                </div>
+                <button
+                  onClick={() => visitRoom("laneToFinish")} 
+                  className="w-40 h-40 bg-white bg-opacity-80 rounded-xl shadow-md hover:shadow-lg transition-all flex flex-col items-center justify-center p-4"
+                >
+                  <span className="text-4xl mb-2">⏱️</span>
+                  <h3 className="text-lg font-bold text-amber-800">Sundial Garden</h3>
+                  <p className="text-xs text-amber-600">Learn about timekeeping</p>
+                </button>
+              </div>
+              
+              {/* 정보 간판은 유지 */}
+              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white bg-opacity-90 border-2 border-green-800 rounded-lg p-3 shadow-lg z-50">
+                <h2 className="text-xl text-green-800 font-bold">Singapore Botanic Gardens</h2>
+                <p className="text-sm text-green-700">Visit all four locations to solve the botanical mystery</p>
+              </div>
             </>
-        )}
-        
-        {/* 나머지 UI 요소들 */}
-        {/* ... */}
-    </div>
-    
-    {/* 인벤토리 및 게임 상태 정보 */}
-    <div className="absolute bottom-4 left-4 bg-white bg-opacity-80 p-2 rounded-lg z-50">
+          )}
+      </div>
+      
+      {/* 나머지 UI 요소들 */}
+      <div className="absolute bottom-4 left-4 bg-white bg-opacity-80 p-2 rounded-lg z-50">
         <div className="font-bold">Score: {score} | XP: {xp} | Level: {level}</div>
         <div className="text-sm">Current Quest: {currentQuest}</div>
         <div className="flex mt-1 space-x-2">
@@ -1475,170 +1482,171 @@ return (
                 </div>
             ))}
         </div>
-    </div>
-    
-    {/* 다른 장소에서 허브로 돌아가는 버튼 */}
-    {currentLocation !== "hub" && (
-        <button
-            onClick={() => setCurrentLocation("hub")}
-            className="absolute bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition-colors z-50"
-        >
-            Return to Garden Map
-        </button>
-    )}
-
-    {/* 로그 메시지 */}
-    <div className="absolute bottom-16 left-4 bg-white bg-opacity-80 p-2 rounded-lg max-w-md z-50">
-        <div className="text-sm italic">{debugLog}</div>
-    </div>
-
-    {/* 게임 진행 상황 표시 - 허브에 도달하면 표시 */}
-    {currentLocation === "hub" && completedTests.length > 0 && (
-      <div className="absolute top-20 right-4 bg-white p-3 rounded shadow-lg z-30">
-        <h3 className="font-bold text-green-700 mb-2">Quest Progress:</h3>
-        <ul className="text-left">
-          <li className="flex items-center">
-            <div className="w-3 h-3 bg-red-500 mr-2"></div>
-            <span>Orchidarium: {completedTests.includes("singaporeanRoom") ? "✅" : "⬜️"}</span>
-          </li>
-          <li className="flex items-center">
-            <div className="w-3 h-3 bg-green-500 mr-2"></div>
-            <span>Heritage Trees: {completedTests.includes("botanicLesson") ? "✅" : "⬜️"}</span>
-          </li>
-          <li className="flex items-center">
-            <div className="w-3 h-3 bg-purple-500 mr-2"></div>
-            <span>Herbarium: {completedTests.includes("mysteryRoom") ? "✅" : "⬜️"}</span>
-          </li>
-          <li className="flex items-center">
-            <div className="w-3 h-3 bg-orange-500 mr-2"></div>
-            <span>Sundial: {completedTests.includes("laneToFinish") ? "✅" : "⬜️"}</span>
-          </li>
-        </ul>
-        {completedTests.length >= 4 && (
-          <div className="mt-2 p-2 bg-green-100 text-green-800 rounded text-sm animate-pulse">
-            All locations complete! The mystery will soon be solved...
-          </div>
-        )}
       </div>
-    )}
-
-    {/* 게임 종료 시 표시할 엔딩 시퀀스 */}
-    {gameState === "gameOver" && (
-      <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-80 flex items-center justify-center z-50">
-        <div className="bg-white p-8 rounded-lg shadow-lg max-w-3xl max-h-[90vh] overflow-y-auto text-center">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-500 via-yellow-400 to-green-500 rounded-t-lg"></div>
-          
-          <h1 className="text-3xl font-bold text-green-700 mb-4 mt-2">The Botanical Mystery Solved!</h1>
-          <p className="text-xl mb-6">You've uncovered Singapore's greatest botanical secret!</p>
-          
-          <div className="mb-6 bg-green-50 p-4 rounded border border-green-200">
-            <p className="italic">By combining all four historical artifacts - the glass slide with pollen, the wax seal imprint, the pressed leaf map, and the sundial key - you've revealed the location of the mythical Rafflesia singaporensis seed.</p>
-            <p className="italic mt-2">Following the coordinates to a hidden section of the Gardens, you discover a special temperature-controlled vault beneath the oldest heritage tree. Inside, preserved in amber, is the dormant seed that botanists have searched for since World War II!</p>
-          </div>
-          
-          <div className="mb-6">
-            <p className="mb-2 font-semibold text-green-800">Your botanical achievements:</p>
-            <ul className="text-left inline-block">
-              <li>✓ Final score: {score} points</li>
-              <li>✓ Historical texts analyzed: {currentChunkIndex + 1} / {chunks.length}</li>
-              <li>✓ Artifacts collected: {inventory.length} / 4</li>
-              <li>✓ Botanical knowledge level: {level}</li>
-            </ul>
-          </div>
-          
+      
+      {/* 다른 장소에서 허브로 돌아가는 버튼 */}
+      {currentLocation !== "hub" && (
           <button
-            onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md"
+              onClick={() => setCurrentLocation("hub")}
+              className="absolute bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition-colors z-50"
           >
-            Start a New Botanical Adventure
+              Return to Garden Map
           </button>
+      )}
+
+      {/* 로그 메시지 */}
+      <div className="absolute bottom-16 left-4 bg-white bg-opacity-80 p-2 rounded-lg max-w-md z-50">
+          <div className="text-sm italic">{debugLog}</div>
+      </div>
+
+      {/* 게임 진행 상황 표시 - 허브에 도달하면 표시 */}
+      {currentLocation === "hub" && completedTests.length > 0 && (
+        <div className="absolute top-20 right-4 bg-white p-3 rounded shadow-lg z-30">
+          <h3 className="font-bold text-green-700 mb-2">Quest Progress:</h3>
+          <ul className="text-left">
+            <li className="flex items-center">
+              <div className="w-3 h-3 bg-red-500 mr-2"></div>
+              <span>Orchidarium: {completedTests.includes("singaporeanRoom") ? "✅" : "⬜️"}</span>
+            </li>
+            <li className="flex items-center">
+              <div className="w-3 h-3 bg-green-500 mr-2"></div>
+              <span>Heritage Trees: {completedTests.includes("botanicLesson") ? "✅" : "⬜️"}</span>
+            </li>
+            <li className="flex items-center">
+              <div className="w-3 h-3 bg-purple-500 mr-2"></div>
+              <span>Herbarium: {completedTests.includes("mysteryRoom") ? "✅" : "⬜️"}</span>
+            </li>
+            <li className="flex items-center">
+              <div className="w-3 h-3 bg-orange-500 mr-2"></div>
+              <span>Sundial: {completedTests.includes("laneToFinish") ? "✅" : "⬜️"}</span>
+            </li>
+          </ul>
+          {completedTests.length >= 4 && (
+            <div className="mt-2 p-2 bg-green-100 text-green-800 rounded text-sm animate-pulse">
+              All locations complete! The mystery will soon be solved...
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 게임 종료 시 표시할 엔딩 시퀀스 */}
+      {gameState === "gameOver" && (
+        <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-80 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg max-w-3xl max-h-[90vh] overflow-y-auto text-center">
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-500 via-yellow-400 to-green-500 rounded-t-lg"></div>
+            
+            <h1 className="text-3xl font-bold text-green-700 mb-4 mt-2">The Botanical Mystery Solved!</h1>
+            <p className="text-xl mb-6">You've uncovered Singapore's greatest botanical secret!</p>
+            
+            <div className="mb-6 bg-green-50 p-4 rounded border border-green-200">
+              <p className="italic">By combining all four historical artifacts - the glass slide with pollen, the wax seal imprint, the pressed leaf map, and the sundial key - you've revealed the location of the mythical Rafflesia singaporensis seed.</p>
+              <p className="italic mt-2">Following the coordinates to a hidden section of the Gardens, you discover a special temperature-controlled vault beneath the oldest heritage tree. Inside, preserved in amber, is the dormant seed that botanists have searched for since World War II!</p>
+            </div>
+            
+            <div className="mb-6">
+              <p className="mb-2 font-semibold text-green-800">Your botanical achievements:</p>
+              <ul className="text-left inline-block">
+                <li>✓ Final score: {score} points</li>
+                <li>✓ Historical texts analyzed: {currentChunkIndex + 1} / {chunks.length}</li>
+                <li>✓ Artifacts collected: {inventory.length} / 4</li>
+                <li>✓ Botanical knowledge level: {level}</li>
+              </ul>
+            </div>
+            
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md"
+            >
+              Start a New Botanical Adventure
+            </button>
+            
+            <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-green-500 via-yellow-400 to-green-500 rounded-b-lg"></div>
+          </div>
+        </div>
+      )}
+
+      {/* 동물 상호작용 말풍선 */}
+      {interactingAnimal && (
+        <div 
+          className="absolute z-50 bg-white p-4 rounded-lg shadow-lg"
+          style={{
+            left: playerPosition.x + 40,
+            top: playerPosition.y - 20,
+            width: 250
+          }}
+        >
+          <h3 className="text-lg font-bold">{interactingAnimal.label}</h3>
+          <p className="text-sm">{interactingAnimal.message}</p>
+          <p className="text-xs text-gray-500 italic">{interactingAnimal.fact}</p>
+        </div>
+      )}
+
+      {/* 나머지 모달 및 UI 컴포넌트 */}
+      {/* ... */}
+      {/* 방향키 UI 추가 - 오른쪽 하단에 위치 */}
+      <div className="absolute bottom-16 right-4 z-50 select-none">
+        <div className="grid grid-cols-3 gap-1">
+          {/* 위쪽 화살표 */}
+          <div className="col-start-2">
+            <button
+              className={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.up ? 'bg-green-200' : ''}`}
+              onClick={() => handleDirectMove('up')}
+            >
+              ↑
+            </button>
+          </div>
           
-          <div className="absolute bottom-0 left-0 w-full h-2 bg-gradient-to-r from-green-500 via-yellow-400 to-green-500 rounded-b-lg"></div>
+          {/* 왼쪽, 아래, 오른쪽 화살표 */}
+          <div className="col-start-1">
+            <button
+              className={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.left ? 'bg-green-200' : ''}`}
+              onClick={() => handleDirectMove('left')}
+            >
+              ←
+            </button>
+          </div>
+          <div className="col-start-2">
+            <button
+              className={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.down ? 'bg-green-200' : ''}`}
+              onClick={() => handleDirectMove('down')}
+            >
+              ↓
+            </button>
+          </div>
+          <div className="col-start-3">
+            <button
+              className={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.right ? 'bg-green-200' : ''}`}
+              onClick={() => handleDirectMove('right')}
+            >
+              →
+            </button>
+          </div>
         </div>
       </div>
-    )}
-
-    {/* 동물 상호작용 말풍선 */}
-    {interactingAnimal && (
+      {/* 플레이어 캐릭터 - 이모티콘 */}
       <div 
-        className="absolute z-50 bg-white p-4 rounded-lg shadow-lg"
+        className="absolute z-20 transition-all duration-100 select-none pointer-events-none"
         style={{
-          left: playerPosition.x + 40,
-          top: playerPosition.y - 20,
-          width: 250
+          left: playerPosition.x - 20, 
+          top: playerPosition.y - 30, 
+          fontSize: '40px'
         }}
       >
-        <h3 className="text-lg font-bold">{interactingAnimal.label}</h3>
-        <p className="text-sm">{interactingAnimal.message}</p>
-        <p className="text-xs text-gray-500 italic">{interactingAnimal.fact}</p>
+        👨‍🔬
       </div>
-    )}
-
-    {/* 나머지 모달 및 UI 컴포넌트 */}
-    {/* ... */}
-    {/* 방향키 UI 추가 - 오른쪽 하단에 위치 */}
-    <div className="absolute bottom-16 right-4 z-50 select-none">
-      <div className="grid grid-cols-3 gap-1">
-        {/* 위쪽 화살표 */}
-        <div className="col-start-2">
-          <button
-            className={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.up ? 'bg-green-200' : ''}`}
-            onClick={() => handleDirectMove('up')}
-          >
-            ↑
-          </button>
-        </div>
-        
-        {/* 왼쪽, 아래, 오른쪽 화살표 */}
-        <div className="col-start-1">
-          <button
-            className={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.left ? 'bg-green-200' : ''}`}
-            onClick={() => handleDirectMove('left')}
-          >
-            ←
-          </button>
-        </div>
-        <div className="col-start-2">
-          <button
-            className={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.down ? 'bg-green-200' : ''}`}
-            onClick={() => handleDirectMove('down')}
-          >
-            ↓
-          </button>
-        </div>
-        <div className="col-start-3">
-          <button
-            className={`w-16 h-16 bg-white bg-opacity-70 rounded-lg flex items-center justify-center text-2xl shadow ${isTouchingControl.right ? 'bg-green-200' : ''}`}
-            onClick={() => handleDirectMove('right')}
-          >
-            →
-          </button>
-        </div>
-      </div>
+      {/* NPC 모달 표시 */}
+      {showNPCModal && currentLocation !== "hub" && (
+        <NPCModal
+          locationData={locationData}
+          onAnswerSubmit={handleAnswer}
+          onWritingSubmit={handleWritingSubmit}
+          writingInput={writingInput}
+          setWritingInput={setWritingInput}
+          randomTextChunk={randomTextChunk}
+        />
+      )}
     </div>
-    {/* 플레이어 캐릭터 - 이모티콘 */}
-    <div 
-      className="absolute z-20 transition-all duration-100 select-none pointer-events-none"
-      style={{
-        left: playerPosition.x - 20, 
-        top: playerPosition.y - 30, 
-        fontSize: '40px'
-      }}
-    >
-      👨‍🔬
-    </div>
-    {/* NPC 모달 표시 */}
-    {showNPCModal && currentLocation !== "hub" && (
-      <NPCModal
-        locationData={locationData}
-        onAnswerSubmit={handleAnswer}
-        onWritingSubmit={handleWritingSubmit}
-        writingInput={writingInput}
-        setWritingInput={setWritingInput}
-        randomTextChunk={randomTextChunk}
-      />
-    )}
-</div>
+  </div>
 );
 
 // 추가 스타일 정의 root = createRoot(document.getElementById('root')!);

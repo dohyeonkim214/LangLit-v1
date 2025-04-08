@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
-import BeyondThePages from "../Games/BeyondThePages";
+import BeyondThePages from "../Games/beyond-the-pages.jsx";
 import ReadingForestChallenge from "./Challenges/Reading_Forest";
-import SingaporeAdventure from "../Games/singapore-adventure/Game";
+import SingaporeAdventure from "../Games/singapore-adventure/Game.jsx";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 

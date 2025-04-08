@@ -443,6 +443,9 @@ const BeyondThePages = () => {
     'cultural_insight': { level: 0, maxLevel: 5, name: 'Cultural Insight', effect: 'Gain deeper understanding of cultural contexts', icon: '🌍' },
   });
 
+  const [showHelpOptions, setShowHelpOptions] = useState(false);
+  const [helpMessage, setHelpMessage] = useState("Hi there! I'm Buddy, your reading buddy! Need help with your literary adventure?");
+
   const libraryIntro = [
     "Welcome to the Secret Library of Literary Worlds! I am the Guardian of Books, keeper of stories from across cultures and time.",
     "This library contains literary treasures from around the world. Each book offers insights into different cultures and traditions.",
@@ -1109,6 +1112,27 @@ const BeyondThePages = () => {
     }
   };
 
+  const handleHelpOption = (option) => {
+    switch(option) {
+      case 'books':
+        setHelpMessage("Try exploring books from different cultures! The CJK filter shows works from Chinese, Japanese, and Korean literature.");
+        break;
+      case 'characters':
+        setHelpMessage("You can unlock literary characters by winning battles! Each character gives you special bonuses when reading certain types of books.");
+        break;
+      case 'challenges':
+        setHelpMessage("Complete daily reading challenges to earn bonus points and maintain your reading streak!");
+        break;
+      case 'battle':
+        setHelpMessage("In Literary Battles, you'll answer questions about books and literature. Your knowledge and your companion's abilities determine if you win!");
+        break;
+      default:
+        setHelpMessage("Hi there! I'm Buddy, your reading buddy! Need help with your literary adventure?");
+    }
+    
+    setShowHelpOptions(false);
+  };
+
   const [showSkillTree, setShowSkillTree] = useState(false);
   const [showCharacters, setShowCharacters] = useState(false);
 
@@ -1142,910 +1166,974 @@ const BeyondThePages = () => {
       )}
       
       {gameStarted && currentStep === "" && showLibrarian && (
-        <div className="w-full h-full relative">
+        <div className="w-full h-full flex items-center justify-center relative">
           <div className="absolute inset-0 bg-[url('/assets/library_interior.jpg')] bg-cover bg-center opacity-50"></div>
           <div className="absolute inset-0 bg-gradient-to-b from-amber-900/30 to-amber-950/70"></div>
           
-          <div className="absolute inset-x-0 bottom-0 flex flex-col items-center">
-            <div className="text-8xl mb-4">🧙‍♀️</div>
-            <div className="bg-amber-800 bg-opacity-90 text-amber-50 p-6 rounded-t-xl w-full max-w-4xl">
-              <h2 className="text-2xl font-bold mb-4">Librarian of the Secret Archives</h2>
-              <div className="min-h-[100px] mb-4">
-                <p className="text-lg">{librarianMessage}</p>
+          <div className="relative z-10 w-full max-w-4xl px-6">
+            <div className="flex flex-col items-center mb-6">
+              <div className="text-8xl mb-4">🧙‍♀️</div>
+              <div className="bg-amber-800 bg-opacity-90 text-amber-50 p-6 rounded-xl w-full">
+                <h2 className="text-2xl font-bold mb-4">Librarian of the Secret Archives</h2>
+                <div className="min-h-[100px] mb-4">
+                  <p className="text-lg">{librarianMessage}</p>
+                </div>
+                
+                {!showCharacterCreation && (
+                  <button 
+                    onClick={displayNextLibrarianMessage}
+                    className="px-6 py-3 bg-amber-600 hover:bg-amber-500 rounded-full text-white font-bold"
+                  >
+                    Continue
+                  </button>
+                )}
+                
+                {showCharacterCreation && (
+                  <div className="bg-amber-700 p-6 rounded-lg">
+                    <h3 className="font-bold text-xl mb-4">Choose your reading companion:</h3>
+                    <div className="grid grid-cols-3 gap-4 mb-6">
+                      {["👶", "👦", "👨", "👨‍🎓", "👨‍🏫", "🧙‍♂️"].map((emoji, index) => (
+                        <div 
+                          key={index}
+                          onClick={() => setCharacterEmoji(emoji)}
+                          className={`text-5xl p-4 bg-amber-600 hover:bg-amber-500 rounded-lg cursor-pointer flex flex-col items-center ${characterEmoji === emoji ? 'ring-4 ring-yellow-300' : ''}`}
+                        >
+                          <div className="mb-2">{emoji}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      onClick={completeCharacterCreation}
+                      className="w-full py-4 bg-amber-500 hover:bg-amber-400 rounded-lg text-white text-xl font-bold"
+                    >
+                      Enter the Literary World
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {gameStarted && currentStep === "outside" && !showLibrarian && (
+        <div className="w-full h-full pt-12 pb-24 relative">
+          {/* 외부 맵 화면 내용 */}
+          <div className="w-full h-full bg-amber-50 relative">
+            {/* 배경 */}
+            <div className="absolute inset-0 bg-[url('/assets/map_background.jpg')] bg-cover bg-center opacity-30"></div>
+            
+            {/* 라이브러리 건물 - 화면 상단에 배치 */}
+            <div 
+              className="absolute top-24 left-1/2 transform -translate-x-1/2 w-80 h-80 cursor-pointer hover:scale-105 transition-transform"
+              onClick={() => setCurrentStep("library")}
+            >
+              <div className="w-full h-full bg-[url('/assets/library_building.png')] bg-contain bg-no-repeat bg-center"></div>
+              <div className="absolute -bottom-12 left-0 right-0 text-center">
+                <div className="bg-amber-800 text-amber-50 px-6 py-3 rounded-full inline-block font-bold text-xl">
+                  Enter Cultural Library
+                </div>
+              </div>
+            </div>
+            
+            {/* 게임 액션 버튼 영역 - 화면 중앙에 배치하되, 아래로 약간 이동 */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/3 mt-20">
+              <h3 className="font-bold text-2xl text-amber-800 mb-4 text-center">Literary Adventures</h3>
+              
+              {/* 게임 액션 버튼 그리드 */}
+              <div className="grid grid-cols-2 gap-4 w-[600px]">
+                {/* 일일 챌린지 */}
+                <div className="bg-white p-5 rounded-lg shadow-md border border-amber-100 hover:shadow-lg transition-shadow">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="bg-amber-100 p-3 rounded-full text-2xl">🔥</div>
+                    <div>
+                      <h3 className="font-bold text-amber-800">Daily Challenges</h3>
+                      <p className="text-xs text-amber-600">Keep your reading streak alive</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div>
+                      <div className="flex justify-between text-sm">
+                        <span>Daily Reading</span>
+                        <span>{readingChallenges.daily.current}/{readingChallenges.daily.target} pages</span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-200 rounded-full mt-1 overflow-hidden">
+                        <div 
+                          className="h-full bg-amber-500 transition-all duration-300"
+                          style={{ width: `${(readingChallenges.daily.current / readingChallenges.daily.target) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    
+                    {/* 읽기 스트릭 */}
+                    {readingChallenges.streak.days > 0 && (
+                      <div className="flex items-center gap-2 text-amber-800 font-bold mt-2">
+                        <span>🔥</span> {readingChallenges.streak.days} Day Streak!
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* 랜덤 리딩 버튼 */}
+                <div 
+                  onClick={startRandomReading}
+                  className="bg-gradient-to-r from-amber-500 to-amber-600 text-white p-5 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer border border-amber-400"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="bg-amber-400/40 p-3 rounded-full text-2xl">🎲</div>
+                    <div>
+                      <h3 className="font-bold">Random Reading</h3>
+                      <p className="text-xs text-amber-100">5-minute quick session</p>
+                    </div>
+                  </div>
+                  <p className="text-sm opacity-90">
+                    Read a random excerpt from world literature. Perfect for when you have just a few minutes!
+                  </p>
+                  <div className="mt-3 text-right">
+                    <span className="bg-amber-400/40 px-2 py-1 rounded text-xs font-bold">+20 pts</span>
+                  </div>
+                </div>
+                
+                {/* 문학 배틀 버튼 */}
+                <div 
+                  onClick={startLiteraryBattle}
+                  className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-5 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer border border-purple-400"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="bg-purple-400/40 p-3 rounded-full text-2xl">⚔️</div>
+                    <div>
+                      <h3 className="font-bold">Literary Battle</h3>
+                      <p className="text-xs text-purple-100">Test your knowledge</p>
+                    </div>
+                  </div>
+                  <p className="text-sm opacity-90">
+                    Challenge literary opponents to question battles. Use your companion's special abilities to win!
+                  </p>
+                  <div className="mt-3 text-right">
+                    <span className="bg-purple-400/40 px-2 py-1 rounded text-xs font-bold">Earn skill points</span>
+                  </div>
+                </div>
+                
+                {/* 스킬 트리 버튼 */}
+                <div 
+                  onClick={() => setShowSkillTree(true)}
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-5 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer border border-green-400"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="bg-green-400/40 p-3 rounded-full text-2xl">🧠</div>
+                    <div>
+                      <h3 className="font-bold">Skill Tree</h3>
+                      <p className="text-xs text-green-100">Upgrade your abilities</p>
+                    </div>
+                  </div>
+                  <p className="text-sm opacity-90">
+                    Enhance your reading abilities with specialized skills. Use skill points to level up!
+                  </p>
+                  <div className="mt-3 text-right">
+                    <span className="bg-green-400/40 px-2 py-1 rounded text-xs font-bold">
+                      {skillPoints} skill points available
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* 문학 캐릭터 패널 - 화면 우측 상단에 배치 */}
+            <div className="absolute top-6 right-6 bg-white p-3 rounded-lg shadow-md flex items-center gap-3 cursor-pointer hover:bg-amber-50 transition-colors border border-amber-100"
+              onClick={() => setShowCharacters(true)}
+            >
+              <div className="text-3xl">
+                {literaryCharacters.find(c => c.id === activeCompanion)?.emoji || '👤'}
+              </div>
+              <div>
+                <div className="font-bold text-amber-800">
+                  {literaryCharacters.find(c => c.id === activeCompanion)?.name || 'Your Companion'}
+                </div>
+                <div className="text-xs text-amber-600">
+                  {unlockedCharacters.length}/{literaryCharacters.length} characters
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* 우측 하단 도움말 강아지 캐릭터 - z-index 높게 설정 */}
+          <div className="fixed bottom-6 right-6 flex items-end z-[100]">
+            {/* 말풍선 */}
+            <div className="bg-white rounded-2xl rounded-br-none shadow-lg p-4 mb-2 mr-4 max-w-xs relative">
+              <p className="text-gray-800">
+                Hi there! I'm Buddy, your reading buddy! Need help with your literary adventure?
+              </p>
+              <div className="absolute -bottom-2 right-0 w-4 h-4 bg-white transform rotate-45"></div>
+            </div>
+            
+            {/* 강아지 캐릭터 */}
+            <div 
+              className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform border-2 border-amber-300 overflow-hidden"
+              onClick={() => setShowHelpOptions ? setShowHelpOptions(!showHelpOptions) : alert("Need help? I'm here to assist with your literary journey!")}
+            >
+              <span className="text-3xl" role="img" aria-label="Puppy assistant">🐶</span>
+            </div>
+            
+            {/* 도움말 옵션 팝업 */}
+            {showHelpOptions && (
+              <div className="absolute bottom-20 right-0 bg-white rounded-xl shadow-xl p-3 z-50 w-64">
+                <h3 className="font-bold text-amber-800 mb-2 px-2">How can I help?</h3>
+                <div className="space-y-1">
+                  <button 
+                    onClick={() => handleHelpOption('books')}
+                    className="w-full text-left px-3 py-2 hover:bg-amber-50 rounded-lg flex items-center"
+                  >
+                    <span className="mr-2">📚</span> About the library
+                  </button>
+                  <button 
+                    onClick={() => handleHelpOption('characters')}
+                    className="w-full text-left px-3 py-2 hover:bg-amber-50 rounded-lg flex items-center"
+                  >
+                    <span className="mr-2">👤</span> Literary characters
+                  </button>
+                  <button 
+                    onClick={() => handleHelpOption('challenges')}
+                    className="w-full text-left px-3 py-2 hover:bg-amber-50 rounded-lg flex items-center"
+                  >
+                    <span className="mr-2">🎯</span> Reading challenges
+                  </button>
+                  <button 
+                    onClick={() => handleHelpOption('battle')}
+                    className="w-full text-left px-3 py-2 hover:bg-amber-50 rounded-lg flex items-center"
+                  >
+                    <span className="mr-2">⚔️</span> Literary battles
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {gameStarted && currentStep === "library" && !showLibrarian && (
+        <div className="w-full h-full bg-amber-100 p-6 flex flex-col">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold text-amber-800">Cultural Library</h2>
+            <button 
+              onClick={returnToMap}
+              className="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700"
+            >
+              Return to Map
+            </button>
+          </div>
+          
+          <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+            <h3 className="font-bold text-lg text-amber-800 mb-2">Your Reading Journey</h3>
+            <div className="flex justify-between text-sm">
+              <div>
+                <div className="font-bold">Total Books</div>
+                <div className="text-2xl text-amber-600">{books.length}</div>
+              </div>
+              <div>
+                <div className="font-bold">Books Started</div>
+                <div className="text-2xl text-amber-600">
+                  {Object.keys(readingRecords).length}
+                </div>
+              </div>
+              <div>
+                <div className="font-bold">Books Completed</div>
+                <div className="text-2xl text-amber-600">
+                  {Object.values(readingRecords).filter(record => 
+                    record.lastPage >= books.find(b => b.id === record.bookId)?.totalPages || 0
+                  ).length}
+                </div>
+              </div>
+              <div>
+                <div className="font-bold">Pages Read</div>
+                <div className="text-2xl text-amber-600">{readingStats.totalPagesRead}</div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex-grow overflow-y-auto pr-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {books.map((book) => {
+                const bookRecord = readingRecords[book.id] || {};
+                const progress = bookRecord.lastPage ? (bookRecord.lastPage / book.totalPages) * 100 : 0;
+                const isCompleted = bookRecord.lastPage >= book.totalPages;
+                
+                return (
+                  <div 
+                    key={book.id}
+                    onClick={() => startReading(book)}
+                    className={`bg-white p-5 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer
+                      ${isCompleted ? 'border-l-4 border-green-500' : ''}`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-lg font-bold text-amber-900 mb-1">{book.title}</h3>
+                      {isCompleted && <div className="text-green-500 text-xl">✓</div>}
+                    </div>
+                    <p className="text-amber-700 mb-1">{book.author}</p>
+                    <p className="text-xs text-gray-600 mb-3">{book.culture}</p>
+                    
+                    <p className="text-sm text-gray-700 mb-3 line-clamp-2">
+                      {book.description || `A classic work from ${book.culture} literature exploring themes of ${["identity", "belonging", "love", "conflict", "nature"][Math.floor(Math.random() * 5)]}.`}
+                    </p>
+                    
+                    <div className="mt-3">
+                      <div className="flex justify-between text-xs text-gray-600 mb-1">
+                        <span>Progress</span>
+                        <span>{bookRecord.lastPage || 0}/{book.totalPages} pages ({Math.round(progress)}%)</span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full transition-all duration-300 ${isCompleted ? 'bg-green-500' : 'bg-amber-500'}`}
+                          style={{ width: `${progress}%` }}
+                        ></div>
+                      </div>
+                      
+                      {bookRecord.lastReadTime && (
+                        <div className="text-xs text-gray-500 mt-2">
+                          Last read: {new Date(bookRecord.lastReadTime).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {currentStep === "reading" && selectedBook && (
+        <div className="w-full h-full bg-amber-50 p-4 flex flex-col">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h2 className="text-xl font-bold text-amber-800">{selectedBook.title}</h2>
+              <p className="text-sm text-amber-600">{selectedBook.author}</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm">Reading Speed:</span>
+                {[1, 2, 5].map((speed) => (
+                  <button 
+                    key={speed}
+                    onClick={() => adjustReadingSpeed(speed)}
+                    className={`px-2 py-1 rounded text-sm ${readingSpeed === speed ? 'bg-amber-700 text-white' : 'bg-amber-200'}`}
+                  >
+                    {speed}x
+                  </button>
+                ))}
+              </div>
+              <button 
+                onClick={() => setCurrentStep("library")}
+                className="bg-amber-600 text-white px-3 py-1 rounded text-sm hover:bg-amber-700"
+              >
+                Back to Library
+              </button>
+            </div>
+          </div>
+          
+          <div className="mb-4">
+            <div className="flex justify-between text-sm text-gray-600 mb-1">
+              <span>Page {currentPage} of {selectedBook.totalPages}</span>
+              <span>{Math.round((currentPage / selectedBook.totalPages) * 100)}% Complete</span>
+            </div>
+            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-amber-600 transition-all duration-300"
+                style={{ width: `${(currentPage / selectedBook.totalPages) * 100}%` }}
+              ></div>
+            </div>
+          </div>
+          
+          <div className="bg-white p-6 rounded-lg shadow-lg flex-grow flex flex-col border-t-4 border-amber-600">
+            <div className="mb-4 text-center italic text-gray-500 text-sm border-b pb-2">
+              {selectedBook.title} - {selectedBook.culture}
+            </div>
+            
+            <div className="flex-grow overflow-y-auto prose max-w-none mb-4">
+              {currentPageContent && currentPageContent.map((paragraph, index) => (
+                <p key={index} className="mb-4 leading-relaxed text-gray-800">
+                  {paragraph}
+                </p>
+              ))}
+              
+              {(!currentPageContent || currentPageContent.length === 0) && (
+                <div className="text-center text-gray-500 italic py-8">
+                  This page appears to be blank or missing content.
+                </div>
+              )}
+            </div>
+            
+            <div className="mt-4 pt-3 border-t border-gray-200">
+              <h3 className="font-bold text-sm text-amber-800 mb-2">Key Words & Concepts</h3>
+              <div className="flex flex-wrap gap-2">
+                {["Consort", "Intimates", "His Majesty", "La Mancha", "lance-rack"].map((word) => (
+                  <div key={word} className="bg-amber-100 px-3 py-1 rounded-full text-xs cursor-pointer hover:bg-amber-200">
+                    {word}
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="mt-4 flex justify-between pt-3 border-t border-gray-200">
+              <button
+                onClick={prevPage}
+                disabled={currentPage <= 1}
+                className={`px-4 py-2 rounded-l-lg flex items-center gap-1 ${currentPage <= 1 ? 'bg-gray-300 text-gray-500' : 'bg-amber-600 text-white hover:bg-amber-700'}`}
+              >
+                <span>←</span> Previous
+              </button>
+              
+              <div className="flex items-center">
+                <input 
+                  type="number" 
+                  value={currentPage}
+                  onChange={(e) => {
+                    const page = parseInt(e.target.value);
+                    if (page >= 1 && page <= selectedBook.totalPages) {
+                      setCurrentPage(page);
+                      updateReadingRecord(selectedBook.id, page);
+                    }
+                  }}
+                  className="w-16 text-center border rounded py-1 mx-2"
+                  min="1"
+                  max={selectedBook.totalPages}
+                />
+                <span className="text-gray-600">of {selectedBook.totalPages}</span>
               </div>
               
-              {!showCharacterCreation && (
-                <button 
-                  onClick={displayNextLibrarianMessage}
-                  className="px-6 py-3 bg-amber-600 hover:bg-amber-500 rounded-full text-white font-bold"
+              <button
+                onClick={nextPage}
+                disabled={currentPage >= selectedBook.totalPages}
+                className={`px-4 py-2 rounded-r-lg flex items-center gap-1 ${currentPage >= selectedBook.totalPages ? 'bg-gray-300 text-gray-500' : 'bg-amber-600 text-white hover:bg-amber-700'}`}
+              >
+                Next <span>→</span>
+              </button>
+            </div>
+          </div>
+          
+          <div className="flex justify-center gap-4 my-3">
+            <button
+              onClick={toggleBookmark}
+              className={`px-3 py-1 rounded-full flex items-center gap-1 text-sm ${
+                bookmarks[selectedBook?.id]?.includes(currentPage)
+                  ? 'bg-amber-600 text-white'
+                  : 'bg-amber-100 text-amber-800'
+              }`}
+            >
+              <span>🔖</span> {bookmarks[selectedBook?.id]?.includes(currentPage) ? 'Bookmarked' : 'Bookmark'}
+            </button>
+            
+            <button
+              onClick={startQuiz}
+              className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 flex items-center gap-1 text-sm hover:bg-amber-200"
+            >
+              <span>🧠</span> Quiz Yourself
+            </button>
+            
+            <button
+              onClick={startWordGame}
+              className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 flex items-center gap-1 text-sm hover:bg-amber-200"
+            >
+              <span>🔤</span> Word Game
+            </button>
+          </div>
+          
+          {showReadingReward && (
+            <div className="fixed bottom-24 right-6 bg-amber-100 border border-amber-300 p-3 rounded-lg shadow-lg animate-fadeIn">
+              <div className="text-amber-800 font-bold flex items-center gap-2">
+                <span className="text-lg">+1</span> <span>Reading Point!</span>
+              </div>
+              <p className="text-xs text-amber-700 mt-1">Your character grows with every page!</p>
+            </div>
+          )}
+        </div>
+      )}
+      
+      {showQuiz && currentQuiz && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 m-4">
+            <div className="mb-4">
+              <h3 className="text-xl font-bold text-amber-800">Knowledge Check</h3>
+              <p className="text-gray-600 text-sm">Test your understanding of what you've read</p>
+            </div>
+            
+            <div className="bg-amber-50 p-4 rounded-lg mb-6">
+              <p className="font-bold mb-4">{currentQuiz.question}</p>
+              
+              {!quizResult && (
+                <div className="space-y-2">
+                  {currentQuiz.options.map((option, index) => (
+                    <div 
+                      key={index}
+                      onClick={() => submitQuizAnswer(index)}
+                      className="bg-white p-3 rounded border border-gray-200 cursor-pointer hover:bg-amber-100"
+                    >
+                      {option}
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {quizResult && (
+                <div className={`p-4 rounded-lg mt-4 ${quizResult.correct ? 'bg-green-100 border border-green-300' : 'bg-red-100 border border-red-300'}`}>
+                  <div className="font-bold mb-2">
+                    {quizResult.correct ? 'Correct! +10 points' : 'Not quite right'}
+                  </div>
+                  <p>{quizResult.explanation}</p>
+                  
+                  {quizResult.correct && quizStreak > 1 && (
+                    <div className="mt-2 text-amber-800 font-bold">
+                      🔥 {quizStreak} Question Streak! Keep going!
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            <div className="flex justify-end gap-2">
+              {quizResult && (
+                <button
+                  onClick={() => setShowQuiz(false)}
+                  className="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700"
                 >
                   Continue
                 </button>
               )}
-              
-              {showCharacterCreation && (
-                <div className="bg-amber-700 p-6 rounded-lg">
-                  <h3 className="font-bold text-xl mb-4">Choose your reading companion:</h3>
-                  <div className="grid grid-cols-3 gap-4 mb-6">
-                    {["👶", "👦", "👨", "👨‍🎓", "👨‍🏫", "🧙‍♂️"].map((emoji, index) => (
-                      <div 
-                        key={index}
-                        onClick={() => setCharacterEmoji(emoji)}
-                        className={`text-5xl p-4 bg-amber-600 hover:bg-amber-500 rounded-lg cursor-pointer flex flex-col items-center ${characterEmoji === emoji ? 'ring-4 ring-yellow-300' : ''}`}
-                      >
-                        <div className="mb-2">{emoji}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <button
-                    onClick={completeCharacterCreation}
-                    className="w-full py-4 bg-amber-500 hover:bg-amber-400 rounded-lg text-white text-xl font-bold"
-                  >
-                    Enter the Literary World
-                  </button>
-                </div>
+            </div>
+            
+            <div className="flex justify-between">
+              <div>
+                Found: {wordGameData.found.length}/{wordGameData.words.length}
+              </div>
+              <button
+                onClick={() => setWordGameActive(false)}
+                className="px-4 py-1 bg-amber-600 text-white rounded hover:bg-amber-700"
+              >
+                Exit Game
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {showAchievement && currentAchievement && (
+        <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-amber-800 text-amber-50 px-6 py-4 rounded-lg shadow-lg animate-bounce">
+          <div className="flex items-center gap-3">
+            <div className="text-3xl">{currentAchievement.icon}</div>
+            <div>
+              <div className="font-bold">Achievement Unlocked!</div>
+              <div className="text-lg">{currentAchievement.title}</div>
+              <div className="text-xs opacity-80">{currentAchievement.description}</div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {showSpecialReward && (
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-amber-600 to-yellow-500 text-white px-6 py-3 rounded-lg shadow-lg animate-pulse">
+          <div className="text-center font-bold">{specialRewardText}</div>
+        </div>
+      )}
+      
+      {showRandomReading && randomReadingContent && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl p-6 m-4 max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center mb-4 pb-4 border-b border-amber-200">
+              <div>
+                <h2 className="text-2xl font-bold text-amber-800">Random Reading Challenge</h2>
+                <p className="text-amber-700 text-sm">{randomReadingContent.title} • {randomReadingContent.culture}</p>
+              </div>
+              <div className={`px-4 py-2 rounded-full font-mono font-bold text-lg 
+                ${randomReadingTimer <= 60 ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}`}>
+                {Math.floor(randomReadingTimer / 60)}:{(randomReadingTimer % 60).toString().padStart(2, '0')}
+              </div>
+            </div>
+            <div className="flex-grow overflow-y-auto mb-6">
+              <div className="bg-amber-50 p-4 rounded-lg mb-4">
+                <h3 className="font-bold text-lg">{randomReadingContent.content.title}</h3>
+                <p className="text-sm text-amber-700">From: {randomReadingContent.title} (Page {randomReadingContent.page})</p>
+              </div>
+              <div className="prose max-w-none">
+                {randomReadingContent.content.paragraphs.map((paragraph, index) => (
+                  <p key={index} className="mb-4 leading-relaxed">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            </div>
+            <div className="border-t border-amber-200 pt-4 flex justify-between items-center">
+              <div className="text-sm text-gray-600">
+                Read carefully to earn bonus points!
+              </div>
+              {randomReadingCompleted ? (
+                <button
+                  onClick={completeRandomReading}
+                  className="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700"
+                >
+                  Complete (+20 points)
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowRandomReading(false)}
+                  className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+                >
+                  Exit (No points)
+                </button>
               )}
             </div>
           </div>
         </div>
       )}
       
-      {gameStarted && (currentStep === "outside" || currentStep === "library" || currentStep === "reading") && (
-        <div className="flex flex-col h-full w-full">
-          <div className="bg-amber-800 text-amber-50 p-4 flex justify-between items-center z-50 h-16">
-          </div>
-          
-          <div className="flex-grow relative w-full">
-            {gameStarted && currentStep === "outside" && !showLibrarian && (
-              <div className="w-full h-full pt-16 relative">
-                <div className="w-full h-full bg-amber-50 relative">
-                  <div className="absolute inset-0 bg-[url('/assets/map_background.jpg')] bg-cover bg-center opacity-30"></div>
-                  
-                  <div 
-                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 cursor-pointer hover:scale-105 transition-transform"
-                    onClick={enterLibrary}
-                  >
-                    <div className="w-full h-full bg-[url('/assets/library_building.png')] bg-contain bg-no-repeat bg-center"></div>
-                    <div className="absolute -bottom-12 left-0 right-0 text-center">
-                      <div className="bg-amber-800 text-amber-50 px-6 py-3 rounded-full inline-block font-bold text-xl">
-                        Enter Cultural Library
-                      </div>
-                    </div>
-                  </div>
+      {showBattleMode && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl p-6 m-4">
+            <div className="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-amber-100 text-4xl p-3 rounded-full">
+                  {literaryCharacters.find(c => c.id === activeCompanion)?.emoji || '👤'}
                 </div>
-                <div className="absolute top-24 left-6 space-y-4 w-80">
-                  <div className="bg-white p-4 rounded-lg shadow-md">
-                    <h3 className="font-bold text-amber-800 mb-2">Daily Challenges</h3>
-                    <div className="space-y-2">
-                      <div>
-                        <div className="flex justify-between text-sm">
-                          <span>Daily Reading</span>
-                          <span>{readingChallenges.daily.current}/{readingChallenges.daily.target} pages</span>
-                        </div>
-                        <div className="w-full h-2 bg-gray-200 rounded-full mt-1 overflow-hidden">
-                          <div 
-                            className="h-full bg-amber-500 transition-all duration-300"
-                            style={{ width: `${(readingChallenges.daily.current / readingChallenges.daily.target) * 100}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                      {readingChallenges.streak.days > 0 && (
-                        <div className="flex items-center gap-2 text-amber-800 font-bold mt-2">
-                          <span>🔥</span> {readingChallenges.streak.days} Day Streak!
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={startRandomReading}
-                      className="bg-gradient-to-r from-amber-600 to-amber-700 text-white py-3 px-2 rounded-lg shadow-md hover:from-amber-700 hover:to-amber-800 transition-all flex flex-col items-center justify-center h-24"
-                    >
-                      <span className="text-2xl mb-1">🎲</span>
-                      <div className="text-center">
-                        <div className="font-bold text-sm">Random</div>
-                        <div className="font-bold text-sm">Reading</div>
-                        <div className="text-xs opacity-80">5-min • +20 pts</div>
-                      </div>
-                    </button>
-                    <button
-                      onClick={startLiteraryBattle}
-                      className="bg-gradient-to-r from-purple-600 to-indigo-700 text-white py-3 px-2 rounded-lg shadow-md hover:from-purple-700 hover:to-indigo-800 transition-all flex flex-col items-center justify-center h-24"
-                    >
-                      <span className="text-2xl mb-1">⚔️</span>
-                      <div className="text-center">
-                        <div className="font-bold text-sm">Literary</div>
-                        <div className="font-bold text-sm">Battle</div>
-                        <div className="text-xs opacity-80">Test your knowledge!</div>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => setShowSkillTree(true)}
-                      className="bg-gradient-to-r from-green-600 to-emerald-700 text-white py-3 px-2 rounded-lg shadow-md hover:from-green-700 hover:to-emerald-800 transition-all flex flex-col items-center justify-center h-24"
-                    >
-                      <span className="text-2xl mb-1">🧠</span>
-                      <div className="text-center">
-                        <div className="font-bold text-sm">Skill Tree</div>
-                        <div className="text-xs opacity-80">Upgrade: {skillPoints} points</div>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => setShowCharacters(true)}
-                      className="bg-gradient-to-r from-blue-600 to-cyan-700 text-white py-3 px-2 rounded-lg shadow-md hover:from-blue-700 hover:to-cyan-800 transition-all flex flex-col items-center justify-center h-24"
-                    >
-                      <span className="text-2xl mb-1">{literaryCharacters.find(c => c.id === activeCompanion)?.emoji || '👤'}</span>
-                      <div className="text-center">
-                        <div className="font-bold text-sm">Literary</div>
-                        <div className="font-bold text-sm">Characters</div>
-                        <div className="text-xs opacity-80">{unlockedCharacters.length}/{literaryCharacters.length} unlocked</div>
-                      </div>
-                    </button>
+                <div>
+                  <h3 className="font-bold text-lg">You & {literaryCharacters.find(c => c.id === activeCompanion)?.name}</h3>
+                  <div className="text-sm text-gray-600">
+                    Knowledge Power: {battlePoints + (literaryCharacters.find(c => c.id === activeCompanion)?.power || 0)}
                   </div>
                 </div>
               </div>
-            )}
+              
+              <div className="text-2xl font-bold text-amber-800">VS</div>
+              
+              <div className="flex items-center gap-3">
+                <div>
+                  <h3 className="font-bold text-lg text-right">{battleOpponent?.name}</h3>
+                  <div className="text-sm text-gray-600 text-right">
+                    Level {battleOpponent?.level} • Power: {battleOpponent?.power * 10}
+                  </div>
+                </div>
+                <div className="bg-gray-100 text-4xl p-3 rounded-full">
+                  {battleOpponent?.avatar}
+                </div>
+              </div>
+            </div>
             
-            {gameStarted && currentStep === "library" && !showLibrarian && (
-              <div className="w-full h-full bg-amber-100 p-6 flex flex-col">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold text-amber-800">Cultural Library</h2>
-                  <button 
-                    onClick={returnToMap}
-                    className="bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700"
-                  >
-                    Return to Map
-                  </button>
-                </div>
-                
-                <div className="bg-white p-4 rounded-lg shadow-md mb-4">
-                  <h3 className="font-bold text-lg text-amber-800 mb-2">Your Reading Journey</h3>
-                  <div className="flex justify-between text-sm">
-                    <div>
-                      <div className="font-bold">Total Books</div>
-                      <div className="text-2xl text-amber-600">{books.length}</div>
-                    </div>
-                    <div>
-                      <div className="font-bold">Books Started</div>
-                      <div className="text-2xl text-amber-600">
-                        {Object.keys(readingRecords).length}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-bold">Books Completed</div>
-                      <div className="text-2xl text-amber-600">
-                        {Object.values(readingRecords).filter(record => 
-                          record.lastPage >= books.find(b => b.id === record.bookId)?.totalPages || 0
-                        ).length}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-bold">Pages Read</div>
-                      <div className="text-2xl text-amber-600">{readingStats.totalPagesRead}</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex-grow overflow-y-auto pr-2">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {books.map((book) => {
-                      const bookRecord = readingRecords[book.id] || {};
-                      const progress = bookRecord.lastPage ? (bookRecord.lastPage / book.totalPages) * 100 : 0;
-                      const isCompleted = bookRecord.lastPage >= book.totalPages;
-                      
-                      return (
-                        <div 
-                          key={book.id}
-                          onClick={() => startReading(book)}
-                          className={`bg-white p-5 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer
-                            ${isCompleted ? 'border-l-4 border-green-500' : ''}`}
-                        >
-                          <div className="flex justify-between items-start">
-                            <h3 className="text-lg font-bold text-amber-900 mb-1">{book.title}</h3>
-                            {isCompleted && <div className="text-green-500 text-xl">✓</div>}
-                          </div>
-                          <p className="text-amber-700 mb-1">{book.author}</p>
-                          <p className="text-xs text-gray-600 mb-3">{book.culture}</p>
-                          
-                          <p className="text-sm text-gray-700 mb-3 line-clamp-2">
-                            {book.description || `A classic work from ${book.culture} literature exploring themes of ${["identity", "belonging", "love", "conflict", "nature"][Math.floor(Math.random() * 5)]}.`}
-                          </p>
-                          
-                          <div className="mt-3">
-                            <div className="flex justify-between text-xs text-gray-600 mb-1">
-                              <span>Progress</span>
-                              <span>{bookRecord.lastPage || 0}/{book.totalPages} pages ({Math.round(progress)}%)</span>
-                            </div>
-                            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full transition-all duration-300 ${isCompleted ? 'bg-green-500' : 'bg-amber-500'}`}
-                                style={{ width: `${progress}%` }}
-                              ></div>
-                            </div>
-                            
-                            {bookRecord.lastReadTime && (
-                              <div className="text-xs text-gray-500 mt-2">
-                                Last read: {new Date(bookRecord.lastReadTime).toLocaleDateString()}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+            {battleStatus === 'preparing' && (
+              <div className="text-center py-8">
+                <h2 className="text-2xl font-bold text-amber-800 mb-4">Literary Battle Challenge</h2>
+                <p className="mb-6">
+                  Test your knowledge against {battleOpponent?.name}, who specializes in {battleOpponent?.speciality} literature.
+                </p>
+                <p className="text-sm mb-8 text-gray-600">
+                  Answer questions correctly to gain points. Use your literary companion's abilities to gain an advantage!
+                </p>
+                <button
+                  onClick={() => setBattleStatus('inProgress')}
+                  className="px-8 py-3 bg-amber-600 text-white rounded-lg shadow hover:bg-amber-700 font-bold"
+                >
+                  Begin Battle!
+                </button>
               </div>
             )}
             
-            {currentStep === "reading" && selectedBook && (
-              <div className="w-full h-full bg-amber-50 p-4 flex flex-col">
-                <div className="flex justify-between items-center mb-4">
-                  <div>
-                    <h2 className="text-xl font-bold text-amber-800">{selectedBook.title}</h2>
-                    <p className="text-sm text-amber-600">{selectedBook.author}</p>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm">Reading Speed:</span>
-                      {[1, 2, 5].map((speed) => (
-                        <button 
-                          key={speed}
-                          onClick={() => adjustReadingSpeed(speed)}
-                          className={`px-2 py-1 rounded text-sm ${readingSpeed === speed ? 'bg-amber-700 text-white' : 'bg-amber-200'}`}
-                        >
-                          {speed}x
-                        </button>
-                      ))}
-                    </div>
-                    <button 
-                      onClick={() => setCurrentStep("library")}
-                      className="bg-amber-600 text-white px-3 py-1 rounded text-sm hover:bg-amber-700"
-                    >
-                      Back to Library
-                    </button>
-                  </div>
+            {battleStatus === 'inProgress' && currentBattleQuestion < battleQuestions.length && (
+              <div>
+                <div className="mb-4 text-right">
+                  <span className="bg-amber-100 px-3 py-1 rounded-full text-amber-800 font-bold">
+                    Question {currentBattleQuestion + 1}/{battleQuestions.length}
+                  </span>
                 </div>
                 
-                <div className="mb-4">
-                  <div className="flex justify-between text-sm text-gray-600 mb-1">
-                    <span>Page {currentPage} of {selectedBook.totalPages}</span>
-                    <span>{Math.round((currentPage / selectedBook.totalPages) * 100)}% Complete</span>
-                  </div>
-                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-amber-600 transition-all duration-300"
-                      style={{ width: `${(currentPage / selectedBook.totalPages) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-                
-                <div className="bg-white p-6 rounded-lg shadow-lg flex-grow flex flex-col border-t-4 border-amber-600">
-                  <div className="mb-4 text-center italic text-gray-500 text-sm border-b pb-2">
-                    {selectedBook.title} - {selectedBook.culture}
-                  </div>
+                <div className="bg-amber-50 p-5 rounded-lg mb-6">
+                  <h3 className="font-bold text-xl mb-4">{battleQuestions[currentBattleQuestion].question}</h3>
                   
-                  <div className="flex-grow overflow-y-auto prose max-w-none mb-4">
-                    {currentPageContent && currentPageContent.map((paragraph, index) => (
-                      <p key={index} className="mb-4 leading-relaxed text-gray-800">
-                        {paragraph}
-                      </p>
+                  <div className="space-y-3 mt-6">
+                    {battleQuestions[currentBattleQuestion].options.map((option, index) => (
+                      <div 
+                        key={index}
+                        onClick={() => submitBattleAnswer(index)}
+                        className="bg-white p-4 rounded border border-gray-200 cursor-pointer hover:bg-amber-100 transition-colors"
+                      >
+                        {option}
+                      </div>
                     ))}
+                  </div>
+                  
+                  <div className="mt-4 text-right text-sm">
+                    <span className="text-amber-800">Points: +{battleQuestions[currentBattleQuestion].points}</span>
                     
-                    {(!currentPageContent || currentPageContent.length === 0) && (
-                      <div className="text-center text-gray-500 italic py-8">
-                        This page appears to be blank or missing content.
-                      </div>
+                    {activeCompanion === 'sherlock' && battleOpponent?.speciality === 'mystery' && (
+                      <span className="ml-2 bg-green-100 px-2 py-0.5 rounded text-green-800">
+                        Sherlock: +30% bonus on mystery questions
+                      </span>
                     )}
                   </div>
-                  
-                  <div className="mt-4 pt-3 border-t border-gray-200">
-                    <h3 className="font-bold text-sm text-amber-800 mb-2">Key Words & Concepts</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {["Consort", "Intimates", "His Majesty", "La Mancha", "lance-rack"].map((word) => (
-                        <div key={word} className="bg-amber-100 px-3 py-1 rounded-full text-xs cursor-pointer hover:bg-amber-200">
-                          {word}
-                        </div>
-                      ))}
+                </div>
+              </div>
+            )}
+            
+            {battleStatus === 'complete' && battleResult && (
+              <div className="text-center py-6">
+                <div className={`text-4xl mb-6 ${battleResult.win ? 'text-green-500' : 'text-red-500'}`}>
+                  {battleResult.win ? '🏆 Victory!' : '😓 Defeat'}
+                </div>
+                
+                <div className="flex justify-center items-center gap-8 mb-8">
+                  <div className="text-center">
+                    <div className="text-5xl mb-2">
+                      {literaryCharacters.find(c => c.id === activeCompanion)?.emoji || '👤'}
                     </div>
+                    <div className="font-bold text-xl text-amber-800">{battleResult.playerScore}</div>
+                    <div className="text-sm text-gray-500">Your Score</div>
                   </div>
                   
-                  <div className="mt-4 flex justify-between pt-3 border-t border-gray-200">
-                    <button
-                      onClick={prevPage}
-                      disabled={currentPage <= 1}
-                      className={`px-4 py-2 rounded-l-lg flex items-center gap-1 ${currentPage <= 1 ? 'bg-gray-300 text-gray-500' : 'bg-amber-600 text-white hover:bg-amber-700'}`}
-                    >
-                      <span>←</span> Previous
-                    </button>
-                    
-                    <div className="flex items-center">
-                      <input 
-                        type="number" 
-                        value={currentPage}
-                        onChange={(e) => {
-                          const page = parseInt(e.target.value);
-                          if (page >= 1 && page <= selectedBook.totalPages) {
-                            setCurrentPage(page);
-                            updateReadingRecord(selectedBook.id, page);
-                          }
-                        }}
-                        className="w-16 text-center border rounded py-1 mx-2"
-                        min="1"
-                        max={selectedBook.totalPages}
-                      />
-                      <span className="text-gray-600">of {selectedBook.totalPages}</span>
+                  <div className="text-2xl">VS</div>
+                  
+                  <div className="text-center">
+                    <div className="text-5xl mb-2">
+                      {battleOpponent?.avatar}
                     </div>
-                    
-                    <button
-                      onClick={nextPage}
-                      disabled={currentPage >= selectedBook.totalPages}
-                      className={`px-4 py-2 rounded-r-lg flex items-center gap-1 ${currentPage >= selectedBook.totalPages ? 'bg-gray-300 text-gray-500' : 'bg-amber-600 text-white hover:bg-amber-700'}`}
-                    >
-                      Next <span>→</span>
-                    </button>
+                    <div className="font-bold text-xl text-gray-700">{battleResult.opponentScore}</div>
+                    <div className="text-sm text-gray-500">Opponent Score</div>
                   </div>
                 </div>
                 
-                <div className="flex justify-center gap-4 my-3">
-                  <button
-                    onClick={toggleBookmark}
-                    className={`px-3 py-1 rounded-full flex items-center gap-1 text-sm ${
-                      bookmarks[selectedBook?.id]?.includes(currentPage)
-                        ? 'bg-amber-600 text-white'
-                        : 'bg-amber-100 text-amber-800'
-                    }`}
-                  >
-                    <span>🔖</span> {bookmarks[selectedBook?.id]?.includes(currentPage) ? 'Bookmarked' : 'Bookmark'}
-                  </button>
-                  
-                  <button
-                    onClick={startQuiz}
-                    className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 flex items-center gap-1 text-sm hover:bg-amber-200"
-                  >
-                    <span>🧠</span> Quiz Yourself
-                  </button>
-                  
-                  <button
-                    onClick={startWordGame}
-                    className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 flex items-center gap-1 text-sm hover:bg-amber-200"
-                  >
-                    <span>🔤</span> Word Game
-                  </button>
-                </div>
-                
-                {showReadingReward && (
-                  <div className="fixed bottom-24 right-6 bg-amber-100 border border-amber-300 p-3 rounded-lg shadow-lg animate-fadeIn">
-                    <div className="text-amber-800 font-bold flex items-center gap-2">
-                      <span className="text-lg">+1</span> <span>Reading Point!</span>
-                    </div>
-                    <p className="text-xs text-amber-700 mt-1">Your character grows with every page!</p>
+                {battleResult.win && (
+                  <div className="bg-amber-50 p-4 rounded-lg mb-6">
+                    <h3 className="font-bold text-lg text-amber-800">Battle Rewards:</h3>
+                    <ul className="mt-2 space-y-1">
+                      <li className="flex items-center gap-2">
+                        <span>✓</span> {battlePoints} points added to your score
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span>✓</span> 1 Skill Point earned
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span>✓</span> 30% chance to unlock a new Literary Character
+                      </li>
+                    </ul>
                   </div>
                 )}
+                
+                <button
+                  onClick={() => setShowBattleMode(false)}
+                  className={`px-8 py-3 rounded-lg shadow font-bold
+                    ${battleResult.win ? 
+                      'bg-amber-600 text-white hover:bg-amber-700' : 
+                      'bg-gray-200 text-gray-800 hover:bg-gray-300'}`
+                  }
+                >
+                  {battleResult.win ? 'Claim Rewards & Continue' : 'Try Again Later'}
+                </button>
               </div>
             )}
-            
-            {showQuiz && currentQuiz && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 m-4">
-                  <div className="mb-4">
-                    <h3 className="text-xl font-bold text-amber-800">Knowledge Check</h3>
-                    <p className="text-gray-600 text-sm">Test your understanding of what you've read</p>
-                  </div>
-                  
-                  <div className="bg-amber-50 p-4 rounded-lg mb-6">
-                    <p className="font-bold mb-4">{currentQuiz.question}</p>
-                    
-                    {!quizResult && (
-                      <div className="space-y-2">
-                        {currentQuiz.options.map((option, index) => (
-                          <div 
-                            key={index}
-                            onClick={() => submitQuizAnswer(index)}
-                            className="bg-white p-3 rounded border border-gray-200 cursor-pointer hover:bg-amber-100"
-                          >
-                            {option}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    
-                    {quizResult && (
-                      <div className={`p-4 rounded-lg mt-4 ${quizResult.correct ? 'bg-green-100 border border-green-300' : 'bg-red-100 border border-red-300'}`}>
-                        <div className="font-bold mb-2">
-                          {quizResult.correct ? 'Correct! +10 points' : 'Not quite right'}
-                        </div>
-                        <p>{quizResult.explanation}</p>
-                        
-                        {quizResult.correct && quizStreak > 1 && (
-                          <div className="mt-2 text-amber-800 font-bold">
-                            🔥 {quizStreak} Question Streak! Keep going!
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex justify-end gap-2">
-                    {quizResult && (
-                      <button
-                        onClick={() => setShowQuiz(false)}
-                        className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700"
-                      >
-                        Continue Reading
-                      </button>
-                    )}
-                  </div>
+          </div>
+        </div>
+      )}
+      
+      {showSkillTree && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl p-6 m-4">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-amber-800">Reading Skill Tree</h2>
+              <div className="flex items-center gap-3">
+                <div className="bg-amber-100 px-3 py-1 rounded-full text-amber-800">
+                  <span className="font-bold">{skillPoints}</span> Skill Points
                 </div>
+                <button
+                  onClick={() => setShowSkillTree(false)}
+                  className="text-amber-800 hover:text-amber-950"
+                >
+                  ✕
+                </button>
               </div>
-            )}
+            </div>
             
-            {wordGameActive && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 m-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-amber-800">Find the Words!</h3>
-                    <div className="bg-amber-100 px-3 py-1 rounded-full">
-                      Time: {wordGameData.timeLeft}s
-                    </div>
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {Object.entries(skills).map(([skillId, skill]) => (
+                <div 
+                  key={skillId} 
+                  className={`bg-white border rounded-lg p-4 relative overflow-hidden
+                    ${skill.level === skill.maxLevel ? 
+                      'border-amber-400 shadow-amber-200 shadow-md' : 
+                      'border-gray-200'}`
+                  }
+                >
+                  <div 
+                    className="absolute inset-0 bg-amber-50 opacity-60"
+                    style={{ width: `${(skill.level / skill.maxLevel) * 100}%` }}
+                  ></div>
                   
-                  <div className="grid grid-cols-4 gap-4 mb-6">
-                    {wordGameData.words.map((word, index) => (
-                      <div
-                        key={index}
-                        onClick={() => !wordGameData.found.includes(word) && findWord(word)}
-                        className={`p-3 rounded-lg text-center cursor-pointer transition-all
-                          ${wordGameData.found.includes(word) 
-                            ? 'bg-green-100 text-green-700 line-through' 
-                            : 'bg-amber-50 hover:bg-amber-100'}`
+                  <div className="relative z-10">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="text-3xl">{skill.icon}</div>
+                      <div className="bg-amber-100 px-2 py-0.5 rounded text-sm font-bold">
+                        Lv {skill.level}/{skill.maxLevel}
+                      </div>
+                    </div>
+                    
+                    <h3 className="font-bold text-lg text-amber-900 mb-1">{skill.name}</h3>
+                    <p className="text-sm text-gray-600 mb-3">{skill.effect}</p>
+                    
+                    {skill.level < skill.maxLevel ? (
+                      <button 
+                        onClick={() => upgradeSkill(skillId)}
+                        disabled={skillPoints <= 0}
+                        className={`w-full py-2 rounded text-center text-sm font-bold
+                          ${skillPoints > 0 ? 
+                            'bg-amber-600 text-white hover:bg-amber-700' : 
+                            'bg-gray-200 text-gray-500 cursor-not-allowed'}`
                         }
                       >
-                        {word}
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <div>
-                      Found: {wordGameData.found.length}/{wordGameData.words.length}
-                    </div>
-                    <button
-                      onClick={() => setWordGameActive(false)}
-                      className="px-4 py-1 bg-amber-600 text-white rounded hover:bg-amber-700"
-                    >
-                      Exit Game
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {showAchievement && currentAchievement && (
-              <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-amber-800 text-amber-50 px-6 py-4 rounded-lg shadow-lg animate-bounce">
-                <div className="flex items-center gap-3">
-                  <div className="text-3xl">{currentAchievement.icon}</div>
-                  <div>
-                    <div className="font-bold">Achievement Unlocked!</div>
-                    <div className="text-lg">{currentAchievement.title}</div>
-                    <div className="text-xs opacity-80">{currentAchievement.description}</div>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {showSpecialReward && (
-              <div className="fixed top-24 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-amber-600 to-yellow-500 text-white px-6 py-3 rounded-lg shadow-lg animate-pulse">
-                <div className="text-center font-bold">{specialRewardText}</div>
-              </div>
-            )}
-            
-            {showRandomReading && randomReadingContent && (
-              <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl p-6 m-4 max-h-[90vh] flex flex-col">
-                  <div className="flex justify-between items-center mb-4 pb-4 border-b border-amber-200">
-                    <div>
-                      <h2 className="text-2xl font-bold text-amber-800">Random Reading Challenge</h2>
-                      <p className="text-amber-700 text-sm">{randomReadingContent.title} • {randomReadingContent.culture}</p>
-                    </div>
-                    <div className={`px-4 py-2 rounded-full font-mono font-bold text-lg 
-                      ${randomReadingTimer <= 60 ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}`}>
-                      {Math.floor(randomReadingTimer / 60)}:{(randomReadingTimer % 60).toString().padStart(2, '0')}
-                    </div>
-                  </div>
-                  <div className="flex-grow overflow-y-auto mb-6">
-                    <div className="bg-amber-50 p-4 rounded-lg mb-4">
-                      <h3 className="font-bold text-lg">{randomReadingContent.content.title}</h3>
-                      <p className="text-sm text-amber-700">From: {randomReadingContent.title} (Page {randomReadingContent.page})</p>
-                    </div>
-                    <div className="prose max-w-none">
-                      {randomReadingContent.content.paragraphs.map((paragraph, index) => (
-                        <p key={index} className="mb-4 leading-relaxed">
-                          {paragraph}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="border-t border-amber-200 pt-4 flex justify-between items-center">
-                    <div className="text-sm text-gray-600">
-                      Read carefully to earn bonus points!
-                    </div>
-                    {randomReadingCompleted ? (
-                      <button
-                        onClick={completeRandomReading}
-                        className="px-6 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700"
-                      >
-                        Complete (+20 points)
+                        {skillPoints > 0 ? 'Upgrade Skill' : 'Need Skill Points'}
                       </button>
                     ) : (
-                      <button
-                        onClick={() => setShowRandomReading(false)}
-                        className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
-                      >
-                        Exit (No points)
-                      </button>
+                      <div className="w-full py-2 rounded text-center text-sm font-bold bg-green-100 text-green-800">
+                        Fully Mastered!
+                      </div>
                     )}
                   </div>
                 </div>
-              </div>
-            )}
+              ))}
+            </div>
             
-            {showBattleMode && (
-              <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl p-6 m-4">
-                  <div className="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-amber-100 text-4xl p-3 rounded-full">
-                        {literaryCharacters.find(c => c.id === activeCompanion)?.emoji || '👤'}
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg">You & {literaryCharacters.find(c => c.id === activeCompanion)?.name}</h3>
-                        <div className="text-sm text-gray-600">
-                          Knowledge Power: {battlePoints + (literaryCharacters.find(c => c.id === activeCompanion)?.power || 0)}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="text-2xl font-bold text-amber-800">VS</div>
-                    
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h3 className="font-bold text-lg text-right">{battleOpponent?.name}</h3>
-                        <div className="text-sm text-gray-600 text-right">
-                          Level {battleOpponent?.level} • Power: {battleOpponent?.power * 10}
-                        </div>
-                      </div>
-                      <div className="bg-gray-100 text-4xl p-3 rounded-full">
-                        {battleOpponent?.avatar}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {battleStatus === 'preparing' && (
-                    <div className="text-center py-8">
-                      <h2 className="text-2xl font-bold text-amber-800 mb-4">Literary Battle Challenge</h2>
-                      <p className="mb-6">
-                        Test your knowledge against {battleOpponent?.name}, who specializes in {battleOpponent?.speciality} literature.
-                      </p>
-                      <p className="text-sm mb-8 text-gray-600">
-                        Answer questions correctly to gain points. Use your literary companion's abilities to gain an advantage!
-                      </p>
-                      <button
-                        onClick={() => setBattleStatus('inProgress')}
-                        className="px-8 py-3 bg-amber-600 text-white rounded-lg shadow hover:bg-amber-700 font-bold"
-                      >
-                        Begin Battle!
-                      </button>
-                    </div>
-                  )}
-                  
-                  {battleStatus === 'inProgress' && currentBattleQuestion < battleQuestions.length && (
-                    <div>
-                      <div className="mb-4 text-right">
-                        <span className="bg-amber-100 px-3 py-1 rounded-full text-amber-800 font-bold">
-                          Question {currentBattleQuestion + 1}/{battleQuestions.length}
-                        </span>
-                      </div>
-                      
-                      <div className="bg-amber-50 p-5 rounded-lg mb-6">
-                        <h3 className="font-bold text-xl mb-4">{battleQuestions[currentBattleQuestion].question}</h3>
-                        
-                        <div className="space-y-3 mt-6">
-                          {battleQuestions[currentBattleQuestion].options.map((option, index) => (
-                            <div 
-                              key={index}
-                              onClick={() => submitBattleAnswer(index)}
-                              className="bg-white p-4 rounded border border-gray-200 cursor-pointer hover:bg-amber-100 transition-colors"
-                            >
-                              {option}
-                            </div>
-                          ))}
-                        </div>
-                        
-                        <div className="mt-4 text-right text-sm">
-                          <span className="text-amber-800">Points: +{battleQuestions[currentBattleQuestion].points}</span>
-                          
-                          {activeCompanion === 'sherlock' && battleOpponent?.speciality === 'mystery' && (
-                            <span className="ml-2 bg-green-100 px-2 py-0.5 rounded text-green-800">
-                              Sherlock: +30% bonus on mystery questions
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {battleStatus === 'complete' && battleResult && (
-                    <div className="text-center py-6">
-                      <div className={`text-4xl mb-6 ${battleResult.win ? 'text-green-500' : 'text-red-500'}`}>
-                        {battleResult.win ? '🏆 Victory!' : '😓 Defeat'}
-                      </div>
-                      
-                      <div className="flex justify-center items-center gap-8 mb-8">
-                        <div className="text-center">
-                          <div className="text-5xl mb-2">
-                            {literaryCharacters.find(c => c.id === activeCompanion)?.emoji || '👤'}
-                          </div>
-                          <div className="font-bold text-xl text-amber-800">{battleResult.playerScore}</div>
-                          <div className="text-sm text-gray-500">Your Score</div>
-                        </div>
-                        
-                        <div className="text-2xl">VS</div>
-                        
-                        <div className="text-center">
-                          <div className="text-5xl mb-2">
-                            {battleOpponent?.avatar}
-                          </div>
-                          <div className="font-bold text-xl text-gray-700">{battleResult.opponentScore}</div>
-                          <div className="text-sm text-gray-500">Opponent Score</div>
-                        </div>
-                      </div>
-                      
-                      {battleResult.win && (
-                        <div className="bg-amber-50 p-4 rounded-lg mb-6">
-                          <h3 className="font-bold text-lg text-amber-800">Battle Rewards:</h3>
-                          <ul className="mt-2 space-y-1">
-                            <li className="flex items-center gap-2">
-                              <span>✓</span> {battlePoints} points added to your score
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <span>✓</span> 1 Skill Point earned
-                            </li>
-                            <li className="flex items-center gap-2">
-                              <span>✓</span> 30% chance to unlock a new Literary Character
-                            </li>
-                          </ul>
-                        </div>
-                      )}
-                      
-                      <button
-                        onClick={() => setShowBattleMode(false)}
-                        className={`px-8 py-3 rounded-lg shadow font-bold
-                          ${battleResult.win ? 
-                            'bg-amber-600 text-white hover:bg-amber-700' : 
-                            'bg-gray-200 text-gray-800 hover:bg-gray-300'}`
-                        }
-                      >
-                        {battleResult.win ? 'Claim Rewards & Continue' : 'Try Again Later'}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-            
-            {showSkillTree && (
-              <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl p-6 m-4">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-amber-800">Reading Skill Tree</h2>
-                    <div className="flex items-center gap-3">
-                      <div className="bg-amber-100 px-3 py-1 rounded-full text-amber-800">
-                        <span className="font-bold">{skillPoints}</span> Skill Points
-                      </div>
-                      <button
-                        onClick={() => setShowSkillTree(false)}
-                        className="text-amber-800 hover:text-amber-950"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    {Object.entries(skills).map(([skillId, skill]) => (
-                      <div 
-                        key={skillId} 
-                        className={`bg-white border rounded-lg p-4 relative overflow-hidden
-                          ${skill.level === skill.maxLevel ? 
-                            'border-amber-400 shadow-amber-200 shadow-md' : 
-                            'border-gray-200'}`
-                        }
-                      >
-                        <div 
-                          className="absolute inset-0 bg-amber-50 opacity-60"
-                          style={{ width: `${(skill.level / skill.maxLevel) * 100}%` }}
-                        ></div>
-                        
-                        <div className="relative z-10">
-                          <div className="flex justify-between items-start mb-3">
-                            <div className="text-3xl">{skill.icon}</div>
-                            <div className="bg-amber-100 px-2 py-0.5 rounded text-sm font-bold">
-                              Lv {skill.level}/{skill.maxLevel}
-                            </div>
-                          </div>
-                          
-                          <h3 className="font-bold text-lg text-amber-900 mb-1">{skill.name}</h3>
-                          <p className="text-sm text-gray-600 mb-3">{skill.effect}</p>
-                          
-                          {skill.level < skill.maxLevel ? (
-                            <button 
-                              onClick={() => upgradeSkill(skillId)}
-                              disabled={skillPoints <= 0}
-                              className={`w-full py-2 rounded text-center text-sm font-bold
-                                ${skillPoints > 0 ? 
-                                  'bg-amber-600 text-white hover:bg-amber-700' : 
-                                  'bg-gray-200 text-gray-500 cursor-not-allowed'}`
-                              }
-                            >
-                              {skillPoints > 0 ? 'Upgrade Skill' : 'Need Skill Points'}
-                            </button>
-                          ) : (
-                            <div className="w-full py-2 rounded text-center text-sm font-bold bg-green-100 text-green-800">
-                              Fully Mastered!
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <div className="bg-amber-50 p-4 rounded-lg">
-                    <h3 className="font-bold text-amber-800 mb-2">How to earn Skill Points:</h3>
-                    <ul className="text-sm space-y-1 text-amber-900">
-                      <li className="flex items-center gap-2">
-                        <span>•</span> Win Literary Battles against opponents
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span>•</span> Complete full books in your reading journey
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span>•</span> Achieve 7-day reading streaks
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {showCharacters && (
-              <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl p-6 m-4 max-h-[80vh] overflow-auto">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-amber-800">Literary Characters</h2>
-                    <button
-                      onClick={() => setShowCharacters(false)}
-                      className="text-amber-800 hover:text-amber-950"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  
-                  <p className="text-gray-600 mb-6">
-                    Literary characters can assist you in your reading journey. Each character provides
-                    unique bonuses and abilities.
-                  </p>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                    {literaryCharacters.map(character => {
-                      const isUnlocked = unlockedCharacters.includes(character.id);
-                      const isActive = activeCompanion === character.id;
-                      
-                      return (
-                        <div 
-                          key={character.id}
-                          className={`border rounded-lg p-4 flex gap-4 relative
-                            ${isUnlocked ? (isActive ? 'border-amber-500 bg-amber-50' : 'border-gray-200') : 
-                            'border-gray-200 opacity-60'}`
-                          }
-                        >
-                          <div 
-                            className={`text-5xl flex items-center justify-center min-w-[60px]
-                              ${!isUnlocked && 'grayscale'}`
-                            }
-                          >
-                            {character.emoji}
-                          </div>
-                          
-                          <div className="flex-grow">
-                            <div className="flex justify-between items-start">
-                              <h3 className="font-bold text-lg">{character.name}</h3>
-                              {isActive && (
-                                <span className="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full font-bold">Active</span>
-                              )}
-                            </div>
-                            
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
-                              {Object.entries(character).filter(([key]) => 
-                                !['id', 'name', 'emoji', 'unlocked'].includes(key)
-                              ).map(([stat, value]) => (
-                                <div key={stat} className="flex items-center text-sm">
-                                  <span className="capitalize text-gray-600">{stat}:</span>
-                                  <div className="ml-1 w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                                    <div 
-                                      className="h-full bg-amber-500"
-                                      style={{ width: `${value}%` }}
-                                    ></div>
-                                  </div>
-                                  <span className="ml-1 text-xs font-bold">{value}</span>
-                                </div>
-                              ))}
-                            </div>
-                            
-                            {isUnlocked ? (
-                              <button
-                                onClick={() => setActiveCompanion(character.id)}
-                                className={`mt-3 px-4 py-1 rounded text-sm font-bold
-                                  ${isActive ? 
-                                    'bg-amber-100 text-amber-800 cursor-default' : 
-                                    'bg-amber-600 text-white hover:bg-amber-700'}`
-                                }
-                                disabled={isActive}
-                              >
-                                {isActive ? 'Current Companion' : 'Select'}
-                              </button>
-                            ) : (
-                              <div className="mt-3 text-sm text-gray-500">
-                                <span className="bg-gray-100 px-2 py-0.5 rounded">
-                                  Locked - Win battles to unlock
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                          
-                          {isUnlocked && character.id === 'sherlock' && (
-                            <div className="absolute -top-2 -right-2 bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-bold">
-                              +30% Mystery Bonus
-                            </div>
-                          )}
-                          
-                          {isUnlocked && character.id === 'hermione' && (
-                            <div className="absolute -top-2 -right-2 bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded-full font-bold">
-                              +40% Quiz Points
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  
-                  <div className="bg-amber-50 p-4 rounded-lg">
-                    <h3 className="font-bold text-amber-800 mb-2">Character Benefits:</h3>
-                    <ul className="text-sm space-y-1 text-amber-900">
-                      <li className="flex items-center gap-2">
-                        <span>•</span> Each character provides unique bonuses during Literary Battles
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span>•</span> Characters can give special insights when reading certain books
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <span>•</span> Unlock all characters to earn the "Literary Circle" achievement
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            <div className="absolute bottom-6 right-6 z-40 flex flex-col items-center">
+            <div className="bg-amber-50 p-4 rounded-lg">
+              <h3 className="font-bold text-amber-800 mb-2">How to earn Skill Points:</h3>
+              <ul className="text-sm space-y-1 text-amber-900">
+                <li className="flex items-center gap-2">
+                  <span>•</span> Win Literary Battles against opponents
+                </li>
+                <li className="flex items-center gap-2">
+                  <span>•</span> Complete full books in your reading journey
+                </li>
+                <li className="flex items-center gap-2">
+                  <span>•</span> Achieve 7-day reading streaks
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       )}
       
-      {isTransitioning && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="text-4xl text-white animate-spin">📚</div>
+      {showCharacters && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl p-6 m-4 max-h-[80vh] overflow-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-amber-800">Literary Characters</h2>
+              <button
+                onClick={() => setShowCharacters(false)}
+                className="text-amber-800 hover:text-amber-950"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <p className="text-gray-600 mb-6">
+              Literary characters can assist you in your reading journey. Each character provides
+              unique bonuses and abilities.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              {literaryCharacters.map(character => {
+                const isUnlocked = unlockedCharacters.includes(character.id);
+                const isActive = activeCompanion === character.id;
+                
+                return (
+                  <div 
+                    key={character.id}
+                    className={`border rounded-lg p-4 flex gap-4 relative
+                      ${isUnlocked ? (isActive ? 'border-amber-500 bg-amber-50' : 'border-gray-200') : 
+                      'border-gray-200 opacity-60'}`
+                    }
+                  >
+                    <div 
+                      className={`text-5xl flex items-center justify-center min-w-[60px]
+                        ${!isUnlocked && 'grayscale'}`
+                      }
+                    >
+                      {character.emoji}
+                    </div>
+                    
+                    <div className="flex-grow">
+                      <div className="flex justify-between items-start">
+                        <h3 className="font-bold text-lg">{character.name}</h3>
+                        {isActive && (
+                          <span className="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full font-bold">Active</span>
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2">
+                        {Object.entries(character).filter(([key]) => 
+                          !['id', 'name', 'emoji', 'unlocked'].includes(key)
+                        ).map(([stat, value]) => (
+                          <div key={stat} className="flex items-center text-sm">
+                            <span className="capitalize text-gray-600">{stat}:</span>
+                            <div className="ml-1 w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-amber-500"
+                                style={{ width: `${value}%` }}
+                              ></div>
+                            </div>
+                            <span className="ml-1 text-xs font-bold">{value}</span>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {isUnlocked ? (
+                        <button
+                          onClick={() => setActiveCompanion(character.id)}
+                          className={`mt-3 px-4 py-1 rounded text-sm font-bold
+                            ${isActive ? 
+                              'bg-amber-100 text-amber-800 cursor-default' : 
+                              'bg-amber-600 text-white hover:bg-amber-700'}`
+                          }
+                          disabled={isActive}
+                        >
+                          {isActive ? 'Current Companion' : 'Select'}
+                        </button>
+                      ) : (
+                        <div className="mt-3 text-sm text-gray-500">
+                          <span className="bg-gray-100 px-2 py-0.5 rounded">
+                            Locked - Win battles to unlock
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {isUnlocked && character.id === 'sherlock' && (
+                      <div className="absolute -top-2 -right-2 bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-bold">
+                        +30% Mystery Bonus
+                      </div>
+                    )}
+                    
+                    {isUnlocked && character.id === 'hermione' && (
+                      <div className="absolute -top-2 -right-2 bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded-full font-bold">
+                        +40% Quiz Points
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            
+            <div className="bg-amber-50 p-4 rounded-lg">
+              <h3 className="font-bold text-amber-800 mb-2">Character Benefits:</h3>
+              <ul className="text-sm space-y-1 text-amber-900">
+                <li className="flex items-center gap-2">
+                  <span>•</span> Each character provides unique bonuses during Literary Battles
+                </li>
+                <li className="flex items-center gap-2">
+                  <span>•</span> Characters can give special insights when reading certain books
+                </li>
+                <li className="flex items-center gap-2">
+                  <span>•</span> Unlock all characters to earn the "Literary Circle" achievement
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       )}
+      
+      <div className="absolute bottom-6 right-6 z-40 flex flex-col items-center">
+      </div>
     </div>
   );
 };
