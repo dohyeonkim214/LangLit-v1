@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { Bar } from "react-chartjs-2";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
-import BeyondThePages from "../Games/beyond-the-pages.jsx";
+import BeyondThePages from "../Games/BeyondThePages";
 import ReadingForestChallenge from "./Challenges/Reading_Forest";
-import SingaporeAdventure from "../Games/singapore-adventure/Game.jsx";
+// @ts-ignore
+import SingaporeAdventure from "../Games/singapore-adventure/Game";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 // Types
-type Tab = "activity" | "friends" | "feed" | "game" | "SingaporeAdventure";
+type Tab = "activity" | "friends" | "feed" | "game";
 
 //interface Companion {
  // name: string;
@@ -69,6 +70,7 @@ const Activity: React.FC = () => {
   const [achievements, setAchievements] = useState<string[]>([]);
   const [selectedTab, setSelectedTab] = useState<Tab>("activity");
   const [visiblePosts, setVisiblePosts] = useState(POSTS_PER_PAGE);
+  const [selectedGame, setSelectedGame] = useState<string | null>(null);
 
   // Generate mock posts
   const mockPosts: Post[] = Array.from({ length: 50 }, (_, index) => ({
@@ -336,8 +338,69 @@ const Activity: React.FC = () => {
         )}
         {selectedTab === "friends" && <FriendsSection />}
         {selectedTab === "feed" && <FeedSection />}
-        {selectedTab === "game" && <BeyondThePages />}
-        {selectedTab === "SingaporeAdventure" && <SingaporeAdventure />}
+        {selectedTab === "game" && (
+          <div>
+            {!selectedGame ? (
+              <div className="py-6">
+                <h2 className="text-2xl font-bold text-center mb-8">Choose a Game</h2>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                  <div 
+                    onClick={() => setSelectedGame("BeyondThePages")}
+                    className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all border-2 border-transparent hover:border-green-300"
+                  >
+                    <div className="h-40 bg-amber-100 rounded-lg mb-4 flex items-center justify-center">
+                      <span className="text-5xl">📚</span>
+                    </div>
+                    <h3 className="text-xl font-bold mb-2">Beyond The Pages</h3>
+                    <p className="text-gray-600 text-sm">
+                      Explore a world of literature and embark on a journey through famous books and stories.
+                    </p>
+                    <button className="mt-4 bg-amber-600 text-white px-4 py-2 rounded-lg w-full">
+                      Start Adventure
+                    </button>
+                  </div>
+                  
+                  <div 
+                    onClick={() => setSelectedGame("SingaporeAdventure")}
+                    className="bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transition-all border-2 border-transparent hover:border-green-300"
+                  >
+                    <div className="h-40 bg-blue-100 rounded-lg mb-4 flex items-center justify-center">
+                      <span className="text-5xl">🌆</span>
+                    </div>
+                    <h3 className="text-xl font-bold mb-2">Singapore Adventure</h3>
+                    <p className="text-gray-600 text-sm">
+                      Discover the culture and history of Singapore through an interactive adventure game.
+                    </p>
+                    <button className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg w-full">
+                      Start Adventure
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="text-center mt-8">
+                  <p className="text-sm text-gray-500">
+                    More games coming soon! Check back for updates.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="mb-4 flex justify-end">
+                  <button 
+                    onClick={() => setSelectedGame(null)}
+                    className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center hover:bg-gray-300"
+                  >
+                    <span className="mr-1">←</span> Back to Games
+                  </button>
+                </div>
+                
+                {selectedGame === "BeyondThePages" && <BeyondThePages />}
+                {selectedGame === "SingaporeAdventure" && <SingaporeAdventure />}
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       <footer className="w-full bg-white shadow-md fixed bottom-0 z-10">
@@ -356,7 +419,7 @@ const Activity: React.FC = () => {
         </div>
       </footer>
     </div>
-  );
+  )
 };
 
 export default Activity;

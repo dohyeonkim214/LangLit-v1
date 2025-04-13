@@ -622,6 +622,7 @@ const BeyondThePages = () => {
     return null;
   };
 
+  // nextPage 함수 수정
   const nextPage = () => {
     if (currentPage < selectedBook.totalPages) {
       const newPage = currentPage + 1;
@@ -634,6 +635,17 @@ const BeyondThePages = () => {
       setShowReadingReward(true);
       setTimeout(() => setShowReadingReward(false), 2000);
       
+      // 미션 체크 로직 추가
+      if (dailyMission && dailyMission.id === 1) {
+        const readPagesCount = localStorage.getItem('mission_read_pages') || 0;
+        const newCount = parseInt(readPagesCount) + 1;
+        localStorage.setItem('mission_read_pages', newCount);
+        
+        if (newCount >= 5 && !missionCompleted) {
+          completeMission();
+        }
+      }
+      
       // 캐릭터에게 메시지 표시 (가끔)
       if (Math.random() > 0.7) {
         const messages = [
@@ -644,6 +656,8 @@ const BeyondThePages = () => {
         ];
         showCharacterMessage(messages[Math.floor(Math.random() * messages.length)]);
       }
+
+      checkMissionProgress('read_page');
     }
   };
 
@@ -680,18 +694,7 @@ const BeyondThePages = () => {
     setReadingSpeed(speed);
   };
 
-  const startQuiz = () => {
-    const bookQuiz = bookQuizzes[selectedBook.id];
-    if (bookQuiz && bookQuiz.length > 0) {
-      const randomIndex = Math.floor(Math.random() * bookQuiz.length);
-      setCurrentQuiz(bookQuiz[randomIndex]);
-      setShowQuiz(true);
-      setQuizResult(null);
-    } else {
-      showCharacterMessage("I don't have any questions for this book yet. Keep reading!");
-    }
-  };
-
+  // submitQuizAnswer 함수 수정
   const submitQuizAnswer = (answerIndex) => {
     if (!currentQuiz) return;
     
@@ -705,6 +708,11 @@ const BeyondThePages = () => {
     if (correct) {
       setScore(prev => prev + 10);
       setQuizStreak(prev => prev + 1);
+      
+      // 미션 체크 로직 추가
+      if (dailyMission && dailyMission.id === 2 && !missionCompleted) {
+        completeMission();
+      }
       
       if (quizStreak + 1 >= 3) {
         const randomItem = collectionItems[Math.floor(Math.random() * collectionItems.length)];
@@ -720,6 +728,8 @@ const BeyondThePages = () => {
     } else {
       setQuizStreak(0);
     }
+
+    checkMissionProgress('quiz_correct');
   };
 
   const updateAchievement = (achievementId) => {
@@ -1136,6 +1146,76 @@ const BeyondThePages = () => {
   const [showSkillTree, setShowSkillTree] = useState(false);
   const [showCharacters, setShowCharacters] = useState(false);
 
+  // 기존 코드에 추가할 상태와 상수들
+
+  // 게임 상태 부분에 추가할 코드:
+  const [dailyMission, setDailyMission] = useState(null);
+  const [missionCompleted, setMissionCompleted] = useState(false);
+  const [showMissionBanner, setShowMissionBanner] = useState(true);
+
+  // 상수 부분에 추가할 코드:
+  const possibleMissions = [
+    { id: 1, task: "Read 5 pages of any book", reward: 50, icon: "📚" },
+    { id: 2, task: "Complete one quiz with a correct answer", reward: 75, icon: "🧠" },
+    { id: 3, task: "Learn 3 new vocabulary words", reward: 60, icon: "🔤" },
+    { id: 4, task: "Bookmark a favorite page", reward: 40, icon: "🔖" },
+    { id: 5, task: "Win a literary battle", reward: 100, icon: "⚔️" },
+    { id: 6, task: "Complete a random reading session", reward: 70, icon: "🎲" },
+    { id: 7, task: "Upgrade one skill", reward: 80, icon: "🌟" },
+    { id: 8, task: "Read about a new culture", reward: 65, icon: "🌍" },
+    { id: 9, task: "Visit the library", reward: 30, icon: "🏛️" },
+    { id: 10, task: "Interact with your literary companion", reward: 45, icon: "👤" },
+  ];
+
+  // useEffect 훅 추가
+  useEffect(() => {
+    // 게임이 시작되면 오늘의 미션 생성
+    if (gameStarted && currentStep === "outside") {
+      // 현재 날짜를 기반으로 고정된 미션 선택(하루마다 변경)
+      const today = new Date().setHours(0, 0, 0, 0);
+      const missionIndex = today % possibleMissions.length;
+      setDailyMission(possibleMissions[missionIndex]);
+    }
+  }, [gameStarted, currentStep]);
+
+  // 미션 완료 함수
+  const completeMission = () => {
+    if (dailyMission && !missionCompleted) {
+      setScore(prev => prev + dailyMission.reward);
+      setMissionCompleted(true);
+      displaySpecialReward(`Mission Completed! +${dailyMission.reward} points`);
+      
+      // 간혹 보너스 보상 추가
+      if (Math.random() < 0.3) {
+        setSkillPoints(prev => prev + 1);
+        displaySpecialReward(`Mission Bonus: +1 Skill Point!`);
+      }
+    }
+  };
+
+  // 미션 진행 확인 함수 (예시)
+  const checkMissionProgress = (action) => {
+    if (!dailyMission || missionCompleted) return;
+    
+    switch (action) {
+      case 'read_page':
+        if (dailyMission.id === 1) {
+          // 페이지 읽기 미션 진행도 업데이트
+          // 실제로는 카운터를 만들어 5페이지를 모두 읽었는지 확인
+          completeMission();
+        }
+        break;
+      case 'quiz_correct':
+        if (dailyMission.id === 2) {
+          completeMission();
+        }
+        break;
+      // 다른 미션 종류별 처리...
+      default:
+        break;
+    }
+  };
+
   return (
     <div className="fixed inset-0 w-screen h-screen bg-amber-50 overflow-hidden flex flex-col">
       <AnimationStyles />
@@ -1192,15 +1272,83 @@ const BeyondThePages = () => {
                   <div className="bg-amber-700 p-6 rounded-lg">
                     <h3 className="font-bold text-xl mb-4">Choose your reading companion:</h3>
                     <div className="grid grid-cols-3 gap-4 mb-6">
-                      {["👶", "👦", "👨", "👨‍🎓", "👨‍🏫", "🧙‍♂️"].map((emoji, index) => (
-                        <div 
-                          key={index}
-                          onClick={() => setCharacterEmoji(emoji)}
-                          className={`text-5xl p-4 bg-amber-600 hover:bg-amber-500 rounded-lg cursor-pointer flex flex-col items-center ${characterEmoji === emoji ? 'ring-4 ring-yellow-300' : ''}`}
-                        >
-                          <div className="mb-2">{emoji}</div>
-                        </div>
-                      ))}
+                      {/* 남성 캐릭터 */}
+                      <div 
+                        key="male-child"
+                        onClick={() => setCharacterEmoji("👦")}
+                        className={`text-5xl p-4 bg-amber-600 hover:bg-amber-500 rounded-lg cursor-pointer flex flex-col items-center ${characterEmoji === "👦" ? 'ring-4 ring-yellow-300' : ''}`}
+                      >
+                        <div className="mb-2">👦</div>
+                        <div className="text-xs text-white">Boy</div>
+                      </div>
+                      <div 
+                        key="male-adult"
+                        onClick={() => setCharacterEmoji("👨")}
+                        className={`text-5xl p-4 bg-amber-600 hover:bg-amber-500 rounded-lg cursor-pointer flex flex-col items-center ${characterEmoji === "👨" ? 'ring-4 ring-yellow-300' : ''}`}
+                      >
+                        <div className="mb-2">👨</div>
+                        <div className="text-xs text-white">Man</div>
+                      </div>
+                      <div 
+                        key="male-wizard"
+                        onClick={() => setCharacterEmoji("🧙‍♂️")}
+                        className={`text-5xl p-4 bg-amber-600 hover:bg-amber-500 rounded-lg cursor-pointer flex flex-col items-center ${characterEmoji === "🧙‍♂️" ? 'ring-4 ring-yellow-300' : ''}`}
+                      >
+                        <div className="mb-2">🧙‍♂️</div>
+                        <div className="text-xs text-white">Wizard</div>
+                      </div>
+                      
+                      {/* 여성 캐릭터 */}
+                      <div 
+                        key="female-child"
+                        onClick={() => setCharacterEmoji("👧")}
+                        className={`text-5xl p-4 bg-amber-600 hover:bg-amber-500 rounded-lg cursor-pointer flex flex-col items-center ${characterEmoji === "👧" ? 'ring-4 ring-yellow-300' : ''}`}
+                      >
+                        <div className="mb-2">👧</div>
+                        <div className="text-xs text-white">Girl</div>
+                      </div>
+                      <div 
+                        key="female-adult"
+                        onClick={() => setCharacterEmoji("👩")}
+                        className={`text-5xl p-4 bg-amber-600 hover:bg-amber-500 rounded-lg cursor-pointer flex flex-col items-center ${characterEmoji === "👩" ? 'ring-4 ring-yellow-300' : ''}`}
+                      >
+                        <div className="mb-2">👩</div>
+                        <div className="text-xs text-white">Woman</div>
+                      </div>
+                      <div 
+                        key="female-wizard"
+                        onClick={() => setCharacterEmoji("🧙‍♀️")}
+                        className={`text-5xl p-4 bg-amber-600 hover:bg-amber-500 rounded-lg cursor-pointer flex flex-col items-center ${characterEmoji === "🧙‍♀️" ? 'ring-4 ring-yellow-300' : ''}`}
+                      >
+                        <div className="mb-2">🧙‍♀️</div>
+                        <div className="text-xs text-white">Sorceress</div>
+                      </div>
+                      
+                      {/* 젠더 중립적 옵션 */}
+                      <div 
+                        key="neutral-person"
+                        onClick={() => setCharacterEmoji("🧑")}
+                        className={`text-5xl p-4 bg-amber-600 hover:bg-amber-500 rounded-lg cursor-pointer flex flex-col items-center ${characterEmoji === "🧑" ? 'ring-4 ring-yellow-300' : ''}`}
+                      >
+                        <div className="mb-2">🧑</div>
+                        <div className="text-xs text-white">Person</div>
+                      </div>
+                      <div 
+                        key="neutral-scholar"
+                        onClick={() => setCharacterEmoji("🧑‍🎓")}
+                        className={`text-5xl p-4 bg-amber-600 hover:bg-amber-500 rounded-lg cursor-pointer flex flex-col items-center ${characterEmoji === "🧑‍🎓" ? 'ring-4 ring-yellow-300' : ''}`}
+                      >
+                        <div className="mb-2">🧑‍🎓</div>
+                        <div className="text-xs text-white">Scholar</div>
+                      </div>
+                      <div 
+                        key="neutral-mage"
+                        onClick={() => setCharacterEmoji("🪄")}
+                        className={`text-5xl p-4 bg-amber-600 hover:bg-amber-500 rounded-lg cursor-pointer flex flex-col items-center ${characterEmoji === "🪄" ? 'ring-4 ring-yellow-300' : ''}`}
+                      >
+                        <div className="mb-2">🪄</div>
+                        <div className="text-xs text-white">Mage</div>
+                      </div>
                     </div>
                     <button
                       onClick={completeCharacterCreation}
@@ -1218,7 +1366,41 @@ const BeyondThePages = () => {
       
       {gameStarted && currentStep === "outside" && !showLibrarian && (
         <div className="w-full h-full pt-12 pb-24 relative">
-          {/* 외부 맵 화면 내용 */}
+          {/* Today's Mission 배너 */}
+          {dailyMission && showMissionBanner && (
+            <div className="absolute top-2 left-0 right-0 mx-auto w-full max-w-md z-20">
+              <div className={`bg-amber-800 text-white px-4 py-3 rounded-lg shadow-lg flex items-center justify-between
+                ${missionCompleted ? 'bg-green-700' : 'bg-amber-800'}`}
+              >
+                <div className="flex items-center">
+                  <div className="text-2xl mr-3">{dailyMission.icon}</div>
+                  <div>
+                    <div className="font-bold text-sm">Today's Mission!</div>
+                    <div className="text-xs text-amber-100">{dailyMission.task} • {missionCompleted ? 'Completed!' : `+${dailyMission.reward} pts`}</div>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  {missionCompleted ? (
+                    <div className="bg-white bg-opacity-20 text-white text-xs px-2 py-1 rounded-full">
+                      ✓ Complete
+                    </div>
+                  ) : (
+                    <div className="text-amber-200 text-xs">
+                      In Progress...
+                    </div>
+                  )}
+                  <button 
+                    onClick={() => setShowMissionBanner(false)} 
+                    className="ml-2 text-white opacity-70 hover:opacity-100"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* 기존 외부 맵 화면 내용 유지 */}
           <div className="w-full h-full bg-amber-50 relative">
             {/* 배경 */}
             <div className="absolute inset-0 bg-[url('/assets/map_background.jpg')] bg-cover bg-center opacity-30"></div>
